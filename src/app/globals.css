@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html{
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(at center, #257981, #000000);
+}
+
+.background-gradient{
+    background: radial-gradient(at center, #177676, #1EA3A6);
+}
