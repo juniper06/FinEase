@@ -16,19 +16,19 @@ const Navbar = () => {
           Dashboard
         </Link>
         <Link
-          href="/managefinances"
+          href="/manage-finances"
           className="relative text-xl w-fit block after:block after:content-[''] after:absolute after:h-[3px] after:bg-[#247881] after:w-full after:scale-x-0 after:hover:scale-x-100 after:transition after:duration-300 after:origin-center focus:border-b-4 border-[#247881]"
         >
           Manage Finances
         </Link>
         <Link
-          href="/expensestracking"
+          href="/expenses-tracking"
           className="relative text-xl w-fit block after:block after:content-[''] after:absolute after:h-[3px] after:bg-[#247881] after:w-full after:scale-x-0 after:hover:scale-x-100 after:transition after:duration-300 after:origin-center focus:border-b-4 border-[#247881]"
         >
           Expenses Tracking
         </Link>
         <Link
-          href="/financialforecasting"
+          href="/financial-forecasting"
           className="relative text-xl w-fit block after:block after:content-[''] after:absolute after:h-[3px] after:bg-[#247881] after:w-full after:scale-x-0 after:hover:scale-x-100 after:transition after:duration-300 after:origin-center focus:border-b-4 border-[#247881]"
         >
           Financial Forecasting
