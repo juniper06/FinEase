@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 const Dashboard = () => {
@@ -8,7 +9,9 @@ const Dashboard = () => {
 
         <div className="w-full h-[340px] flex gap-5">
           <div className="w-[910px] h-[320px] flex flex-col">
-            <h3 className="text-[20px] text-[#00FFFF]">Financial Goal Progress</h3>
+            <h3 className="text-[20px] text-[#00FFFF]">
+              Financial Goal Progress
+            </h3>
             <div className="w-full h-full border-[#00FFFF] border"></div>
           </div>
 
@@ -21,7 +24,30 @@ const Dashboard = () => {
         <div className="w-full h-[340px] flex gap-5">
           <div className="w-[910px] h-[320px] flex flex-col">
             <h3 className="text-[20px] text-[#00FFFF]">Budget Proposals</h3>
-            <div className="w-full h-full border-[#00FFFF] border"></div>
+            <div className="w-full h-full border-[#00FFFF] border">
+              <div className="overflow-x-auto">
+                <table className="table">
+                  {/* head */}
+                  <thead>
+                    <tr className="text-[#00FFFF] text-[20px]">
+                      <th>ID</th>
+                      <th>Title</th>
+                      <th>CFO</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-white">
+                    {/* row 1 */}
+                    <tr className="hover">
+                      <th>1</th>
+                      <td>Cy Gander</td>
+                      <td>Quality Control Specialist</td>
+                      <td>Blue</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
           <div className="w-[910px] h-[320px] flex flex-col">
@@ -29,7 +55,6 @@ const Dashboard = () => {
             <div className="w-full h-full border-[#00FFFF] border"></div>
           </div>
         </div>
-
       </div>
     </div>
   );
