@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Form, useForm } from "react-hook-form";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -34,12 +34,11 @@ export default function LoginForm() {
 
   useEffect(() => {
     const timeOut = setTimeout(() => {
-      setError(undefined)
+      setError(undefined);
     }, 5000);
-  
-    return () => clearTimeout(timeOut)
-  }, [error])
-  
+
+    return () => clearTimeout(timeOut);
+  }, [error]);
 
   const onSubmit = async (values: formSchemaType) => {
     const response = await signIn("credentials", {
@@ -58,25 +57,34 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
+      <label htmlFor="UserName" className="text-white text-[15px] font-medium">
+        Username
+      </label>
       <input
+        id="UserName"
         type="text"
-        placeholder="Enter username"
-        className="input input-bordered input-primary w-full"
+        className="input input-bordered input-primary w-[350px] h-[55px] bg-[#134046] p-3 text-white"
         {...form.register("username")}
       />
+      <br />
+      <label htmlFor="Password" className="text-white text-[15px] font-medium">
+        Password
+      </label>
       <input
+        id="Password"
         type="password"
-        placeholder="Enter password"
-        className="input input-bordered input-primary w-full"
+        className="input input-bordered input-primary w-[350px] h-[55px] bg-[#134046] text-white p-3"
         {...form.register("password")}
       />
+      <br />
+      <br />
       <button
         disabled={form.formState.isSubmitting}
         type="submit"
-        className="btn btn-primary w-full"
+        className="w-[350px] h-[55px] bg-[#0c282b] text-white text-[24px] font-medium"
       >
-        Sign In
+        Log In
       </button>
       {form.formState.isSubmitted && error && (
         <div role="alert" className="alert alert-error">

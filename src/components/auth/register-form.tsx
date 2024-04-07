@@ -61,44 +61,114 @@ export default function RegisterForm() {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
+      {/* ari ko last */}
+      <div className="w-[450px] flex gap-[10px]">
+        <div className="flex flex-col">
+          <label
+            htmlFor="Firstname"
+            className="text-white text-[15px] font-medium"
+          >
+            First Name
+          </label>
+          <input
+            id="Firstname"
+            type="text"
+            placeholder="e.g., John"
+            className="input input-bordered input-primary w-[220px] h-[55px] bg-[#134046] p-3 text-white mb-3"
+          />
+        </div>
+        <div className="flex flex-col">
+          <label
+            htmlFor="Lastname"
+            className="text-white text-[15px] font-medium"
+          >
+            Last Name
+          </label>
+          <input
+            id="Lastname"
+            type="text"
+            placeholder="e.g., Doe"
+            className="input input-bordered input-primary w-[220px] h-[55px] bg-[#134046] p-3 text-white mb-3"
+          />
+        </div>
+      </div>
+      <label htmlFor="Username" className="text-white text-[15px] font-medium">
+        Username
+      </label>
       <input
+        id="Username"
         type="text"
-        placeholder="Enter username"
-        className="input input-bordered input-primary w-full"
+        placeholder="e.g., johndoe123"
+        className="input input-bordered input-primary w-[450px] h-[55px] bg-[#134046] p-3 text-white mb-3"
         {...form.register("username")}
       />
+      <label htmlFor="Email" className="text-white text-[15px] font-medium">
+        Email Address
+      </label>
       <input
-        type="password"
-        placeholder="Enter password"
-        className="input input-bordered input-primary w-full"
-        {...form.register("password")}
-      />
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        className="input input-bordered input-primary w-full"
-        {...form.register("confirmPassword")}
-      />
-      <input
+        id="Email"
         type="email"
-        placeholder="Enter email"
-        className="input input-bordered input-primary w-full"
+        placeholder="e.g., john.doe@example.com"
+        className="input input-bordered input-primary w-[450px] h-[55px] bg-[#134046] p-3 text-white mb-3"
         {...form.register("email")}
       />
+      <label
+        htmlFor="ContactNumber"
+        className="text-white text-[15px] font-medium"
+      >
+        Contact Number
+      </label>
       <input
+        id="ContactNumber"
         type="text"
-        placeholder="Enter mobileNumber"
-        className="input input-bordered input-primary w-full"
+        placeholder="e.g., +63 238 123 4567"
+        className="input input-bordered input-primary w-[450px] h-[55px] bg-[#134046] p-3 text-white mb-3"
         {...form.register("mobileNumber")}
       />
-      <button
-        disabled={form.formState.isSubmitting}
-        type="submit"
-        className="btn btn-primary w-full"
-      >
-        Sign Up
-      </button>
+      <div className="w-[450px] flex gap-[10px]">
+        <div className="flex flex-col">
+          <label
+            htmlFor="Password"
+            className="text-white text-[15px] font-medium"
+          >
+            Password
+          </label>
+          <input
+            id="Password"
+            type="password"
+            placeholder="e.g., P@ssw0rd123"
+            className="input input-bordered input-primary w-[220px] h-[55px] bg-[#134046] p-3 text-white mb-3"
+            {...form.register("password")}
+          />
+        </div>
+        <div className="flex flex-col">
+          <label
+            htmlFor="ConfirmPassword"
+            className="text-white text-[15px] font-medium"
+          >
+            Confirm Password
+          </label>
+          <input
+            id="ConfirmPassword"
+            type="password"
+            placeholder="e.g., P@ssw0rd123"
+            className="input input-bordered input-primary w-[220px] h-[55px] bg-[#134046] p-3 text-white"
+            {...form.register("confirmPassword")}
+          />
+        </div>
+      </div>
+      <br />
+      <br />
+      <div className="w-[450px] flex justify-center items-center">
+        <button
+          disabled={form.formState.isSubmitting}
+          type="submit"
+          className="w-[350px] h-[55px] bg-[#0c282b] text-white text-[24px] font-medium"
+        >
+          Sign Up
+        </button>
+      </div>
       {form.formState.isSubmitted && error && (
         <div role="alert" className="alert alert-error">
           <svg
