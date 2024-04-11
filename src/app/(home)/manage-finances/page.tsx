@@ -15,17 +15,17 @@ export default function ManageFinances() {
         <Link href="/manage-finances/add-budget-proposal">
           <ButtonChoices>Add Budget Proposal </ButtonChoices>
         </Link>
-        <Link href="/manage-finances/view-income-source">
-          <ButtonChoices>View Income Source</ButtonChoices>
-        </Link>
-        <Link href="/manage-finances/view-transaction-history">
-          <ButtonChoices>View Transaction History</ButtonChoices>
-        </Link>
         <Link href="/manage-finances/add-financial-ratios">
           <ButtonChoices>Add Financial Ratios</ButtonChoices>
         </Link>
         <Link href="/manage-finances/add-tax-information">
           <ButtonChoices>Add Tax Information</ButtonChoices>
+        </Link>
+        <Link href="/manage-finances/view-income-source">
+          <ButtonChoices>View Income Source</ButtonChoices>
+        </Link>
+        <Link href="/manage-finances/view-transaction-history">
+          <ButtonChoices>View Transaction History</ButtonChoices>
         </Link>
       </div>
     </div>

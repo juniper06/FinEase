@@ -12,26 +12,30 @@ import {
 } from "../ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 
 const formSchema = z.object({
-  incomeSource: z.string().min(1),
-  incomeBudget: z.number(),
+  currentAssets: z.string().min(1),
+  revenue: z.number().nonnegative(),
+  liabilities: z.number().nonnegative(),
+  netIncome: z.number().nonnegative(),
 });
 
-export default function AddIncomeSource() {
+export default function AddFinancialRatios() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      incomeSource: "",
-      incomeBudget: 0,
+      currentAssets: "",
+      revenue: 0,
+      liabilities: 0,
+      netIncome: 0,
     },
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     console.log({ values });
   };
-
   return (
     <Form {...form}>
       <form
@@ -40,12 +44,12 @@ export default function AddIncomeSource() {
       >
         <FormField
           control={form.control}
-          name="incomeSource"
+          name="currentAssets"
           render={({ field }) => {
             return (
               <FormItem>
                 <FormLabel className="text-[16px] font-medium">
-                  Input Income Source
+                  Input Current Assets
                 </FormLabel>
                 <FormControl>
                   <Input {...field} />
@@ -57,12 +61,46 @@ export default function AddIncomeSource() {
         />
         <FormField
           control={form.control}
-          name="incomeBudget"
+          name="revenue"
           render={({ field }) => {
             return (
               <FormItem>
                 <FormLabel className="text-[16px] font-medium">
-                  Input Income Budget
+                  Input Revenue
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+        <FormField
+          control={form.control}
+          name="liabilities"
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel className="text-[16px] font-medium">
+                  Input Current Liabilities
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+        <FormField
+          control={form.control}
+          name="netIncome"
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel className="text-[16px] font-medium">
+                  Input Net Income
                 </FormLabel>
                 <FormControl>
                   <Input {...field} />

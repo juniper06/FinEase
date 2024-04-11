@@ -1,7 +1,7 @@
-import AddSource from "@/components/income-source/add-form";
+import AddIncomeSource from "@/components/income-source/add-form";
 import React from "react";
 
-export default async function AddIncomeSource() {
+export default async function IncomeSource() {
   return (
     <div className="p-3">
       <div className="w-full h-[775px] rounded-[10px] bg-[#119fa4] flex flex-col items-center ">
@@ -11,7 +11,7 @@ export default async function AddIncomeSource() {
           </h2>
         </div>
         <div className="w-full h-full flex justify-center items-center">
-          <AddSource />
+          <AddIncomeSource />
         </div>
       </div>
     </div>
