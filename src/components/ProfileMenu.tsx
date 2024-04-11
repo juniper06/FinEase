@@ -10,6 +10,7 @@ import {
 import { LogoutButton } from "./auth/logout-button";
 import { TbLogout } from "react-icons/tb";
 import { CgProfile } from "react-icons/cg";
+import Link from "next/link";
 
 export default async function ProfileMenu() {
   const result = await getByAuth();
@@ -28,8 +29,8 @@ export default async function ProfileMenu() {
         <DropdownMenuContent className="text-white bg-[#103438] rounded-[10px] border-transparent">
           <DropdownMenuItem className="text-[18px] font-medium">
             <CgProfile className="mr-2" />
-            Manage Account
-          </DropdownMenuItem>
+            <Link href="/manage-account">Manage Account</Link>
+          </DropdownMenuItem> 
           <DropdownMenuSeparator />
           <DropdownMenuItem className="text-[18px] font-medium">
             <TbLogout className="mr-2" />
