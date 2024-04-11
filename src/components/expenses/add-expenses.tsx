@@ -33,37 +33,39 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 
-const IncomeSourceEnum = z.enum(["Salary", "Freelance", "Investment", "Other"]);
+const Categories = z.enum(["Salary", "Freelance", "Investment", "Other"]);
+const ModeOfPayment = z.enum([
+  "Cash",
+  "Credit Card",
+  "Bank Transfer",
+  "Online Payment Systems",
+  "Other",
+]);
 
 const formSchema = z.object({
-  incomeSource: IncomeSourceEnum,
-  incomeAmount: z.number(),
-  transactionDate: z.date({
-    required_error: "A date of income transaction is required.",
-  }),
-  referenceNumber: z.number(),
+  expensesTitle: z.string().min(1),
+  category: Categories,
+  amount: z.number().nonnegative(),
+  expenseDate: z.date(),
+  modeOfPayment: ModeOfPayment,
   notes: z.string().min(1),
-  file: z.instanceof(FileList).optional(),
 });
 
-export default function AddBusinessTransaction() {
+export default function AddExpenses() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      incomeSource: "Salary",
-      incomeAmount: 0,
-      transactionDate: new Date(),
-      referenceNumber: 0,
+      expensesTitle: "",
+      category: "Freelance",
+      amount: 0,
+      expenseDate: new Date(),
+      modeOfPayment: "Cash",
       notes: "",
     },
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    const file = form.getValues("file");
-    console.log("File:", file);
-
-    // Remaining form data
-    console.log("Other form data:", values);
+    console.log({ values });
   };
 
   return (
@@ -74,29 +76,15 @@ export default function AddBusinessTransaction() {
       >
         <FormField
           control={form.control}
-          name="incomeAmount"
+          name="expensesTitle"
           render={({ field }) => {
             return (
               <FormItem>
                 <FormLabel className="text-[16px] font-medium">
-                  Select Income Source
+                  Input Expenses Title
                 </FormLabel>
                 <FormControl>
-                  <Select>
-                    <SelectTrigger className="w-full h-[60px] rounded-[5px] bg-white drop-shadow-xl">
-                      <SelectValue placeholder="Select Income Source" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-[#119fa4] text-white font-medium ">
-                      <SelectGroup>
-                        <SelectLabel>Income Sources</SelectLabel>
-                        <SelectItem value="apple">Apple</SelectItem>
-                        <SelectItem value="banana">Banana</SelectItem>
-                        <SelectItem value="blueberry">Blueberry</SelectItem>
-                        <SelectItem value="grapes">Grapes</SelectItem>
-                        <SelectItem value="pineapple">Pineapple</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -106,12 +94,43 @@ export default function AddBusinessTransaction() {
         <div className="flex gap-2">
           <FormField
             control={form.control}
-            name="incomeAmount"
+            name="category"
             render={({ field }) => {
               return (
                 <FormItem>
                   <FormLabel className="text-[16px] font-medium">
-                    Input Income Amount
+                    Select Category
+                  </FormLabel>
+                  <FormControl>
+                    <Select>
+                      <SelectTrigger className="w-[245px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
+                        <SelectValue placeholder="Select Income Source" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#119fa4] text-white font-medium ">
+                        <SelectGroup>
+                          <SelectLabel>Income Sources</SelectLabel>
+                          <SelectItem value="apple">Apple</SelectItem>
+                          <SelectItem value="banana">Banana</SelectItem>
+                          <SelectItem value="blueberry">Blueberry</SelectItem>
+                          <SelectItem value="grapes">Grapes</SelectItem>
+                          <SelectItem value="pineapple">Pineapple</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+          <FormField
+            control={form.control}
+            name="amount"
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel className="text-[16px] font-medium">
+                    Input Amount
                   </FormLabel>
                   <FormControl>
                     <Input {...field} className="w-[245px]" />
@@ -121,13 +140,15 @@ export default function AddBusinessTransaction() {
               );
             }}
           />
+        </div>
+        <div className="flex gap-2">
           <FormField
             control={form.control}
-            name="transactionDate"
+            name="expenseDate"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[16px] font-medium">
-                  Input Date of Transaction
+                  Input Date
                 </FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -164,24 +185,55 @@ export default function AddBusinessTransaction() {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="modeOfPayment"
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel className="text-[16px] font-medium">
+                    Select Mode of Payment
+                  </FormLabel>
+                  <FormControl>
+                    <Select>
+                      <SelectTrigger className="w-[245px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
+                        <SelectValue placeholder="Select Income Source" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#119fa4] text-white font-medium ">
+                        <SelectGroup>
+                          <SelectLabel>Income Sources</SelectLabel>
+                          <SelectItem value="apple">Apple</SelectItem>
+                          <SelectItem value="banana">Banana</SelectItem>
+                          <SelectItem value="blueberry">Blueberry</SelectItem>
+                          <SelectItem value="grapes">Grapes</SelectItem>
+                          <SelectItem value="pineapple">Pineapple</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
         </div>
-        <FormField
+        {/* <FormField
           control={form.control}
-          name="referenceNumber"
+          name=""
           render={({ field }) => {
             return (
               <FormItem>
                 <FormLabel className="text-[16px] font-medium">
-                  Input Reference Number
+                  Attach Receipt
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input type="file" {...field} className="bg-white" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             );
           }}
-        />
+        /> */}
         <FormField
           control={form.control}
           name="notes"
@@ -193,23 +245,6 @@ export default function AddBusinessTransaction() {
                 </FormLabel>
                 <FormControl>
                   <Textarea {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
-        />
-        <FormField
-          control={form.control}
-          name="file"
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormLabel className="text-[16px] font-medium">
-                  Attach Receipt
-                </FormLabel>
-                <FormControl>
-                  <Input type="file" {...field} className="bg-white" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
