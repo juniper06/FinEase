@@ -11,5 +11,5 @@
 html{
     width: 100%;
     height: 100%;
-    background: radial-gradient(at center, #257981, #000000);
+    background: radial-gradient(circle, hsla(185, 57%, 27%, 1) 0%, hsla(180, 60%, 2%, 1) 90%);
 }

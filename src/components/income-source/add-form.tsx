@@ -16,7 +16,7 @@ import Link from "next/link";
 
 const formSchema = z.object({
   incomeSource: z.string().min(1),
-  incomeBudget: z.string().min(1),
+  incomeBudget: z.number(),
 });
 
 export default function AddSource() {
@@ -24,7 +24,7 @@ export default function AddSource() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       incomeSource: "",
-      incomeBudget: "",
+      incomeBudget: 0,
     },
   });
 
