@@ -19,7 +19,7 @@ export default async function ProfileMenu() {
     throw new Error(result.error.message);
   }
   return (
-    <div>
+    <div >
       <DropdownMenu>
         <DropdownMenuTrigger>
           <Avatar>
@@ -27,7 +27,7 @@ export default async function ProfileMenu() {
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="text-white bg-[#103438] rounded-[10px] border-transparent">
+        <DropdownMenuContent className="text-white bg-[#103438] rounded-[10px] border-transparent" align="end">
           <DropdownMenuItem className="text-[18px] font-medium">
             <span>Manage Account</span>
           </DropdownMenuItem>
