@@ -22,16 +22,106 @@ model User {
   mobileNumber String?
   email        String
   account      Account?
+  role         String
 }
 
 model Account {
-  id            Int      @id @default(autoincrement())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  userId        Int      @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  firstName     String
-  lastName      String
-  budget        Float
-  financialGoal String
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  firstName String
+  lastName  String
+}
+
+model File {
+  id                Int                @id @default(autoincrement())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  fileName          String
+  originalName      String
+  mimeType          String
+  size              Int
+  incomeTransaction IncomeTransaction?
+}
+
+model IncomeSource {
+  id           Int                 @id @default(autoincrement())
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  name         String
+  budget       Float
+  transactions IncomeTransaction[]
+  expenses     Expense[]
+}
+
+model IncomeTransaction {
+  id              Int          @id @default(autoincrement())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  sourceId        Int
+  source          IncomeSource @relation(fields: [sourceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  referenceNumber String
+  notes           String
+  receiptId       Int          @unique
+  receipt         File         @relation(fields: [receiptId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  transactionDate DateTime
+}
+
+model BudgetProposal {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  title       String
+  salary      Float
+  cost        Float
+  rental      Float
+  maintenance Float
+  supplies    Float
+  assumptions String
+  methodology String
+  status      String
+}
+
+model FinancialRatio {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  assets      Float
+  revenue     Float
+  liabilities Float
+  netIncome   Float
+}
+
+model Expense {
+  id            Int          @id @default(autoincrement())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  title         String
+  sourceId      Int
+  source        IncomeSource @relation(fields: [sourceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  amount        Float
+  date          DateTime
+  modeOfPayment String
+  notes         String
+}
+
+model ExpenseCategory {
+  id                Int                @id @default(autoincrement())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  name              String
+  expensesFrequency ExpenseFrequency[]
+}
+
+model ExpenseFrequency {
+  id         Int             @id @default(autoincrement())
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  categoryId Int
+  category   ExpenseCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  amount     Float
+  type       String
+  status     String
 }

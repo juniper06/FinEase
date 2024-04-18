@@ -1,3 +1,4 @@
+import { Role } from '@/common/enum';
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { CreateUserDto } from '@/user/user.dto';
 import { ConflictException, Injectable } from '@nestjs/common';
@@ -23,7 +24,7 @@ export class UserService {
         id: true,
         username: true,
       },
-      data: userDto,
+      data: { ...userDto, role: Role.CFO },
     });
     return {
       data,
