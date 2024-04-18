@@ -1,18 +1,11 @@
 "use client";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import Link from "next/link";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -22,16 +15,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { Button } from "../ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "../ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 
 const IncomeSourceEnum = z.enum(["Salary", "Freelance", "Investment", "Other"]);
 
@@ -41,37 +42,47 @@ const formSchema = z.object({
   transactionDate: z.date({
     required_error: "A date of income transaction is required.",
   }),
-  referenceNumber: z.number(),
+  referenceNumber: z.string().optional(),
   notes: z.string().min(1),
-  file: z.instanceof(FileList).optional(),
 });
 
 export default function AddBusinessTransaction() {
+  const [file, setFile] = useState<File>();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       incomeSource: "Salary",
       incomeAmount: 0,
       transactionDate: new Date(),
-      referenceNumber: 0,
+      referenceNumber: "",
       notes: "",
     },
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    const file = form.getValues("file");
-    console.log("File:", file);
+    const formData = new FormData();
+    Object.keys(values).forEach((key) => {
+      formData.append(
+        key,
+        String(values[key as keyof z.infer<typeof formSchema>])
+      );
+    });
 
     // Remaining form data
     console.log("Other form data:", values);
+  };
+
+  const handleChangeReceipt = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    }
   };
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="w-[500px] flex flex-col gap-5"
-      >
+        className="w-[500px] flex flex-col gap-5">
         <FormField
           control={form.control}
           name="incomeAmount"
@@ -137,8 +148,7 @@ export default function AddBusinessTransaction() {
                         className={cn(
                           "w-[249px] h-[60px] pl-3 text-left font-medium bg-white text-black rounded-[5px] drop-shadow-xl border border-input",
                           !field.value && "text-muted-foreground"
-                        )}
-                      >
+                        )}>
                         {field.value ? (
                           format(field.value, "PPP")
                         ) : (
@@ -199,23 +209,21 @@ export default function AddBusinessTransaction() {
             );
           }}
         />
-        <FormField
-          control={form.control}
-          name="file"
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormLabel className="text-[16px] font-medium">
-                  Attach Receipt
-                </FormLabel>
-                <FormControl>
-                  <Input type="file" {...field} className="bg-white" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
-        />
+        <FormItem>
+          <FormLabel className="text-[16px] font-medium">
+            Attach Receipt
+          </FormLabel>
+          <FormControl>
+            <Input
+              type="file"
+              accept="image/*"
+              multiple={false}
+              onChange={handleChangeReceipt}
+              className="bg-white"
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
         <div className="flex gap-2 justify-center">
           <Button type="submit">Submit</Button>
           <Button asChild variant="outline">

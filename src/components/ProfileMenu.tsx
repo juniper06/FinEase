@@ -15,6 +15,7 @@ import Link from "next/link";
 
 export default async function ProfileMenu() {
   const result = await getByAuth();
+  console.log(result);
   if (result.error) {
     throw new Error(result.error.message);
   }
