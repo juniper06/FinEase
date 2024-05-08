@@ -60,9 +60,9 @@ export default function AddTaxInformation() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="w-[500px] flex flex-col gap-5"
+        className="w-[500px] flex flex-col gap-5 justify-center items-center"
       >
-        <div className="flex gap-2">
+        <div className="flex flex-col justify-center items-center gap-2 md:flex-row">
           <FormField
             control={form.control}
             name="stateIncomeTax"
@@ -73,7 +73,7 @@ export default function AddTaxInformation() {
                     Input State income tax
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} className="w-[245px]" />
+                    <Input {...field} className="w-[300px] md:w-[275px]" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -90,7 +90,7 @@ export default function AddTaxInformation() {
                     Input Sales Tax Rate
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} className="w-[245px]" />
+                    <Input {...field} className="w-[300px] md:w-[275px]" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -98,7 +98,7 @@ export default function AddTaxInformation() {
             }}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="w-[200px] flex flex-col justify-center items-center gap-2 md:flex-row">
           <FormField
             control={form.control}
             name="payrollTaxRate"
@@ -109,7 +109,7 @@ export default function AddTaxInformation() {
                     Input Payroll tax rate
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} className="w-[245px]" />
+                    <Input {...field} className="w-[300px] md:w-[275px]" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -130,7 +130,7 @@ export default function AddTaxInformation() {
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-[249px] h-[60px] pl-3 text-left font-medium bg-white text-black rounded-[5px] drop-shadow-xl border border-input",
+                          "w-[300px] md:w-[275px] h-[60px] pl-3 text-left font-medium bg-white text-black rounded-[5px] drop-shadow-xl border border-input",
                           !field.value && "text-muted-foreground"
                         )}
                       >

@@ -21,7 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "../ui/button";
@@ -33,12 +33,15 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-
-const IncomeSourceEnum = z.enum(["Salary", "Freelance", "Investment", "Other"]);
+import { useToast } from "@/components/ui/use-toast";
+import {
+  addIncomeTransaction,
+  getIncomeSourceList,
+} from "@/actions/income-transaction.action";
 
 const formSchema = z.object({
-  incomeSource: IncomeSourceEnum,
-  incomeAmount: z.number(),
+  sourceId: z.coerce.number(),
+  incomeAmount: z.coerce.number(),
   transactionDate: z.date({
     required_error: "A date of income transaction is required.",
   }),
@@ -48,10 +51,11 @@ const formSchema = z.object({
 
 export default function AddBusinessTransaction() {
   const [file, setFile] = useState<File>();
+  const [incomeSourceList, setIncomeSourceList] = useState<any>([]);
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      incomeSource: "Salary",
       incomeAmount: 0,
       transactionDate: new Date(),
       referenceNumber: "",
@@ -59,7 +63,17 @@ export default function AddBusinessTransaction() {
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await getIncomeSourceList();
+      setIncomeSourceList(result);
+      console.log(result);
+      console.log("Successfully fetched");
+    };
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     const formData = new FormData();
     Object.keys(values).forEach((key) => {
       formData.append(
@@ -67,7 +81,19 @@ export default function AddBusinessTransaction() {
         String(values[key as keyof z.infer<typeof formSchema>])
       );
     });
-
+    console.log(formData.getAll)
+    console.log(values)
+    const result = await addIncomeTransaction(formData);
+    if (result.error) {
+      console.log(result.message);
+      toast({
+        title: "Failed to add Income Transaction",
+      });
+      return;
+    }
+    toast({
+      title: "Successfully added Income Source",
+    });
     // Remaining form data
     console.log("Other form data:", values);
   };
@@ -82,50 +108,49 @@ export default function AddBusinessTransaction() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="w-[500px] flex flex-col gap-5">
+        className="w-[500px] flex flex-col gap-5 justify-center items-center"
+      >
         <FormField
           control={form.control}
-          name="incomeAmount"
+          name="sourceId"
           render={({ field }) => {
             return (
               <FormItem>
                 <FormLabel className="text-[16px] font-medium">
                   Select Income Source
                 </FormLabel>
-                <FormControl>
-                  <Select>
-                    <SelectTrigger className="w-full h-[60px] rounded-[5px] bg-white drop-shadow-xl">
+                <Select onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger className="w-[300px] md:w-[555px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
                       <SelectValue placeholder="Select Income Source" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#119fa4] text-white font-medium ">
-                      <SelectGroup>
-                        <SelectLabel>Income Sources</SelectLabel>
-                        <SelectItem value="apple">Apple</SelectItem>
-                        <SelectItem value="banana">Banana</SelectItem>
-                        <SelectItem value="blueberry">Blueberry</SelectItem>
-                        <SelectItem value="grapes">Grapes</SelectItem>
-                        <SelectItem value="pineapple">Pineapple</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
+                  </FormControl>
+                  <SelectContent className="bg-[#119fa4] text-white font-medium ">
+                    {incomeSourceList.map((incomeSource: any) => (
+                      <SelectItem key={incomeSource.id} value={incomeSource.id}>
+                        {incomeSource.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
                 <FormMessage />
               </FormItem>
             );
           }}
         />
-        <div className="flex gap-2">
+        <div className="flex flex-col justify-center items-center gap-2 md:flex-row">
           <FormField
             control={form.control}
             name="incomeAmount"
             render={({ field }) => {
               return (
                 <FormItem>
-                  <FormLabel className="text-[16px] font-medium">
+                  <FormLabel className="md:text-[16px] font-medium">
                     Input Income Amount
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} className="w-[245px]" />
+                    <Input {...field} className="w-[300px] md:w-[275px]" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,15 +165,17 @@ export default function AddBusinessTransaction() {
                 <FormLabel className="text-[16px] font-medium">
                   Input Date of Transaction
                 </FormLabel>
+                <br />
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-[249px] h-[60px] pl-3 text-left font-medium bg-white text-black rounded-[5px] drop-shadow-xl border border-input",
+                          "w-[300px] md:w-[275px] h-[60px] pl-3 text-left font-medium bg-white text-black rounded-[5px] drop-shadow-xl border border-input",
                           !field.value && "text-muted-foreground"
-                        )}>
+                        )}
+                      >
                         {field.value ? (
                           format(field.value, "PPP")
                         ) : (
@@ -185,7 +212,7 @@ export default function AddBusinessTransaction() {
                   Input Reference Number
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-[300px] md:w-[555px]" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -202,7 +229,7 @@ export default function AddBusinessTransaction() {
                   Input Notes
                 </FormLabel>
                 <FormControl>
-                  <Textarea {...field} />
+                  <Textarea {...field} className="w-[300px] md:w-[555px]" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -219,11 +246,12 @@ export default function AddBusinessTransaction() {
               accept="image/*"
               multiple={false}
               onChange={handleChangeReceipt}
-              className="bg-white"
+              className="bg-white w-[300px] md:w-[555px]" 
             />
           </FormControl>
           <FormMessage />
         </FormItem>
+
         <div className="flex gap-2 justify-center">
           <Button type="submit">Submit</Button>
           <Button asChild variant="outline">

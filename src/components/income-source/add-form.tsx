@@ -13,22 +13,37 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { useToast } from "@/components/ui/use-toast";
+import { addIncomeSource } from "@/actions/income-source.action";
 
 const formSchema = z.object({
-  incomeSource: z.string().min(1),
-  incomeBudget: z.number(),
+  name: z.string().min(1),
+  budget: z.coerce.number(),
 });
 
 export default function AddIncomeSource() {
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      incomeSource: "",
-      incomeBudget: 0,
+      name: "",
+      budget: 0,
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    const result = await addIncomeSource(values);
+    if (result.error) {
+      console.log(result.message);
+      toast({
+        title: "Failed to add Income Source",
+      });
+      return;
+    }
+    toast({
+      title: "Successfully added Income Source",
+    });
+    console.log("Other form data:", values);
     console.log({ values });
   };
 
@@ -36,11 +51,11 @@ export default function AddIncomeSource() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="w-[500px] flex flex-col gap-5"
+        className="w-[500px] flex flex-col gap-5 justify-center items-center"
       >
         <FormField
           control={form.control}
-          name="incomeSource"
+          name="name"
           render={({ field }) => {
             return (
               <FormItem>
@@ -48,7 +63,7 @@ export default function AddIncomeSource() {
                   Input Income Source
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-[350px] md:w-[400px]" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -57,7 +72,7 @@ export default function AddIncomeSource() {
         />
         <FormField
           control={form.control}
-          name="incomeBudget"
+          name="budget"
           render={({ field }) => {
             return (
               <FormItem>
@@ -65,14 +80,14 @@ export default function AddIncomeSource() {
                   Input Income Budget
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-[350px] md:w-[400px]" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             );
           }}
         />
-        <div className="flex gap-2 justify-center">
+        <div className="flex gap-2 justify-center mt-5">
           <Button type="submit">Submit</Button>
           <Button asChild variant="outline">
             <Link href="/">Cancel</Link>

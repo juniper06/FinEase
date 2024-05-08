@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function ExpensesTracking() {
   return (
     <div className="w-full h-[700px] flex justify-center items-center">
-      <div className="grid gap-[40px] grid-cols-3 grid-rows-2">
+      <div className="grid grid-cols-2 grid-rows-2 gap-[20px] md:gap-[40px] md:grid-cols-3 md:grid-rows-2">
         <Link href="/expenses-tracking/add-expenses">
           <ButtonChoices>Add Expenses</ButtonChoices>
         </Link>

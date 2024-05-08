@@ -39,7 +39,7 @@ export default function AddFinancialRatios() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="w-[500px] flex flex-col gap-5"
+        className="w-[500px] flex flex-col gap-5 justify-center items-center"
       >
         <FormField
           control={form.control}
@@ -51,7 +51,7 @@ export default function AddFinancialRatios() {
                   Input Current Assets
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-[300px] md:w-[555px]"/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -68,7 +68,7 @@ export default function AddFinancialRatios() {
                   Input Revenue
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-[300px] md:w-[555px]"/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -85,7 +85,7 @@ export default function AddFinancialRatios() {
                   Input Current Liabilities
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-[300px] md:w-[555px]"/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -102,7 +102,7 @@ export default function AddFinancialRatios() {
                   Input Net Income
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-[300px] md:w-[555px]"/>
                 </FormControl>
                 <FormMessage />
               </FormItem>

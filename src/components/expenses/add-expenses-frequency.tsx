@@ -52,7 +52,7 @@ export default function AddExpensesFrequency() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="w-[500px] flex flex-col gap-5"
+        className="w-[500px] flex flex-col gap-5 justify-center items-center"
       >
         <FormField
           control={form.control}
@@ -65,7 +65,7 @@ export default function AddExpensesFrequency() {
                 </FormLabel>
                 <FormControl>
                   <Select>
-                    <SelectTrigger className="w-full h-[60px] rounded-[5px] bg-white drop-shadow-xl">
+                    <SelectTrigger className="w-[300px] md:w-[555px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
                       <SelectValue placeholder="Select Income Source" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#119fa4] text-white font-medium ">
@@ -95,7 +95,7 @@ export default function AddExpensesFrequency() {
                   Input Recurring Amount
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-[300px] md:w-[555px]"/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -113,7 +113,7 @@ export default function AddExpensesFrequency() {
                 </FormLabel>
                 <FormControl>
                   <Select>
-                    <SelectTrigger className="w-full h-[60px] rounded-[5px] bg-white drop-shadow-xl">
+                    <SelectTrigger className="w-[300px] md:w-[555px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
                       <SelectValue placeholder="Select Income Source" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#119fa4] text-white font-medium ">
@@ -144,7 +144,7 @@ export default function AddExpensesFrequency() {
                 </FormLabel>
                 <FormControl>
                   <Select>
-                    <SelectTrigger className="w-full h-[60px] rounded-[5px] bg-white drop-shadow-xl">
+                    <SelectTrigger className="w-[300px] md:w-[555px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
                       <SelectValue placeholder="Select Income Source" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#119fa4] text-white font-medium ">

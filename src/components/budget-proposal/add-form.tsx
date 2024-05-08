@@ -49,7 +49,7 @@ export default function AddBudgetProposal() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="w-[500px] flex flex-col gap-5"
+        className="w-[500px] flex flex-col gap-5 justify-center items-center"
       >
         <FormField
           control={form.control}
@@ -61,14 +61,14 @@ export default function AddBudgetProposal() {
                   Input project investment or source
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-[300px] md:w-[555px]"/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             );
           }}
         />
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           <FormField
             control={form.control}
             name="salary"
@@ -79,7 +79,7 @@ export default function AddBudgetProposal() {
                     Input salaries
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} className="w-[245px]" />
+                    <Input {...field} className="w-[150px] md:w-[245px]" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -96,7 +96,7 @@ export default function AddBudgetProposal() {
                     Input utility cost
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} className="w-[245px]" />
+                    <Input {...field} className="w-[150px] md:w-[245px]" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -104,7 +104,7 @@ export default function AddBudgetProposal() {
             }}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           <FormField
             control={form.control}
             name="rentalFee"
@@ -112,10 +112,11 @@ export default function AddBudgetProposal() {
               return (
                 <FormItem>
                   <FormLabel className="text-[16px] font-medium">
+                    <br/>
                     Input rental fee
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} className="w-[245px]" />
+                    <Input {...field} className="w-[150px] md:w-[245px]" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -129,10 +130,10 @@ export default function AddBudgetProposal() {
               return (
                 <FormItem>
                   <FormLabel className="text-[16px] font-medium">
-                    Input maintenance cost
+                    Input maintenance <br/> cost
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} className="w-[245px]" />
+                    <Input {...field} className="w-[150px] md:w-[245px]" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -150,7 +151,7 @@ export default function AddBudgetProposal() {
                 Input budget supplies
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-[300px] md:w-[555px]"/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -167,7 +168,7 @@ export default function AddBudgetProposal() {
                 Input assumptions
                 </FormLabel>
                 <FormControl>
-                  <Textarea {...field} />
+                  <Textarea {...field} className="w-[300px] md:w-[555px]"/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -184,14 +185,14 @@ export default function AddBudgetProposal() {
                 Input methodologies
                 </FormLabel>
                 <FormControl>
-                  <Textarea {...field} />
+                  <Textarea {...field} className="w-[300px] md:w-[555px]"/>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             );
           }}
         />
-        <div className="flex gap-2 justify-center">
+        <div className="flex gap-2 justify-center mb-5">
           <Button type="submit">Submit</Button>
           <Button asChild variant="outline">
             <Link href="/">Cancel</Link>

@@ -72,7 +72,7 @@ export default function AddExpenses() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="w-[500px] flex flex-col gap-5"
+        className="w-[500px] flex flex-col gap-5 justify-center items-center"
       >
         <FormField
           control={form.control}
@@ -84,14 +84,14 @@ export default function AddExpenses() {
                   Input Expenses Title
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className="w-[340px] md:w-[555px]" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             );
           }}
         />
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           <FormField
             control={form.control}
             name="category"
@@ -103,10 +103,10 @@ export default function AddExpenses() {
                   </FormLabel>
                   <FormControl>
                     <Select>
-                      <SelectTrigger className="w-[245px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
+                      <SelectTrigger className="w-[170px] md:w-[245px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
                         <SelectValue placeholder="Select Income Source" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#119fa4] text-white font-medium ">
+                      <SelectContent className="bg-[#119fa4] text-white font-medium w-[150px] md:w-[245px]">
                         <SelectGroup>
                           <SelectLabel>Income Sources</SelectLabel>
                           <SelectItem value="apple">Apple</SelectItem>
@@ -133,7 +133,7 @@ export default function AddExpenses() {
                     Input Amount
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} className="w-[245px]" />
+                    <Input {...field} className="w-[170px] md:w-[245px]" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -141,7 +141,7 @@ export default function AddExpenses() {
             }}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           <FormField
             control={form.control}
             name="expenseDate"
@@ -156,7 +156,7 @@ export default function AddExpenses() {
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-[249px] h-[60px] pl-3 text-left font-medium bg-white text-black rounded-[5px] drop-shadow-xl border border-input",
+                          "w-[160px] md:w-[245px] h-[60px] pl-3 text-[20px] flex justify-center text-left font-medium bg-white text-black rounded-[5px] drop-shadow-xl border border-input",
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -169,7 +169,7 @@ export default function AddExpenses() {
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-white" align="start">
+                  <PopoverContent className="w-auto p-0 bg-white " align="start">
                     <Calendar
                       mode="single"
                       selected={field.value}
@@ -196,7 +196,7 @@ export default function AddExpenses() {
                   </FormLabel>
                   <FormControl>
                     <Select>
-                      <SelectTrigger className="w-[245px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
+                      <SelectTrigger className="w-[160px] md:w-[245px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
                         <SelectValue placeholder="Select Income Source" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#119fa4] text-white font-medium ">
@@ -217,7 +217,7 @@ export default function AddExpenses() {
             }}
           />
         </div>
-        {/* <FormField
+        <FormField
           control={form.control}
           name=""
           render={({ field }) => {
@@ -227,13 +227,13 @@ export default function AddExpenses() {
                   Attach Receipt
                 </FormLabel>
                 <FormControl>
-                  <Input type="file" {...field} className="bg-white" />
+                  <Input type="file" {...field} className="bg-white w-[340px] md:w-[555px]" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             );
           }}
-        /> */}
+        />
         <FormField
           control={form.control}
           name="notes"
@@ -244,7 +244,7 @@ export default function AddExpenses() {
                   Input Notes
                 </FormLabel>
                 <FormControl>
-                  <Textarea {...field} />
+                  <Textarea {...field} className="w-[340px] md:w-[555px]"/>
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -61,13 +61,13 @@ export default function RegisterForm() {
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col w-[350px] md:w-[450px] md:justify-start md:items-start">
       {/* ari ko last */}
-      <div className="w-[450px] flex gap-[10px]">
+      <div className="flex gap-[10px] justify-start">
         <div className="flex flex-col">
           <label
             htmlFor="Firstname"
-            className="text-white text-[15px] font-medium"
+            className="text-white text-[15px] font-medium text-left"
           >
             First Name
           </label>
@@ -75,7 +75,7 @@ export default function RegisterForm() {
             id="Firstname"
             type="text"
             placeholder="e.g., John"
-            className="input input-bordered input-primary w-[220px] h-[55px] bg-[#134046] p-3 text-white mb-3"
+            className="input input-bordered input-primary w-[180px] md:w-[220px] h-[55px] bg-[#134046] p-3 text-white mb-3"
           />
         </div>
         <div className="flex flex-col">
@@ -89,7 +89,7 @@ export default function RegisterForm() {
             id="Lastname"
             type="text"
             placeholder="e.g., Doe"
-            className="input input-bordered input-primary w-[220px] h-[55px] bg-[#134046] p-3 text-white mb-3"
+            className="input input-bordered input-primary w-[180px] md:w-[220px] h-[55px] bg-[#134046] p-3 text-white mb-3"
           />
         </div>
       </div>
@@ -100,7 +100,7 @@ export default function RegisterForm() {
         id="Username"
         type="text"
         placeholder="e.g., johndoe123"
-        className="input input-bordered input-primary w-[450px] h-[55px] bg-[#134046] p-3 text-white mb-3"
+        className="input input-bordered input-primary w-[370px] md:w-[450px] h-[55px] bg-[#134046] p-3 text-white mb-3"
         {...form.register("username")}
       />
       <label htmlFor="Email" className="text-white text-[15px] font-medium">
@@ -110,7 +110,7 @@ export default function RegisterForm() {
         id="Email"
         type="email"
         placeholder="e.g., john.doe@example.com"
-        className="input input-bordered input-primary w-[450px] h-[55px] bg-[#134046] p-3 text-white mb-3"
+        className="input input-bordered input-primary w-[370px] md:w-[450px] h-[55px] bg-[#134046] p-3 text-white mb-3"
         {...form.register("email")}
       />
       <label
@@ -123,7 +123,7 @@ export default function RegisterForm() {
         id="ContactNumber"
         type="text"
         placeholder="e.g., +63 238 123 4567"
-        className="input input-bordered input-primary w-[450px] h-[55px] bg-[#134046] p-3 text-white mb-3"
+        className="input input-bordered input-primary w-[370px] md:w-[450px] h-[55px] bg-[#134046] p-3 text-white mb-3"
         {...form.register("mobileNumber")}
       />
       <div className="w-[450px] flex gap-[10px]">
@@ -138,7 +138,7 @@ export default function RegisterForm() {
             id="Password"
             type="password"
             placeholder="e.g., P@ssw0rd123"
-            className="input input-bordered input-primary w-[220px] h-[55px] bg-[#134046] p-3 text-white mb-3"
+            className="input input-bordered input-primary w-[180px] md:w-[220px] h-[55px] bg-[#134046] p-3 text-white mb-3"
             {...form.register("password")}
           />
         </div>
@@ -153,18 +153,18 @@ export default function RegisterForm() {
             id="ConfirmPassword"
             type="password"
             placeholder="e.g., P@ssw0rd123"
-            className="input input-bordered input-primary w-[220px] h-[55px] bg-[#134046] p-3 text-white"
+            className="input input-bordered input-primary w-[180px] md:w-[220px] h-[55px] bg-[#134046] p-3 text-white"
             {...form.register("confirmPassword")}
           />
         </div>
       </div>
       <br />
       <br />
-      <div className="w-[450px] flex justify-center items-center">
+      <div className="w-[350px] md:w-[450px] flex justify-center items-center">
         <button
           disabled={form.formState.isSubmitting}
           type="submit"
-          className="w-[350px] h-[55px] bg-[#0c282b] text-white text-[24px] font-medium"
+          className="w-[300px] md:w-[350px] h-[55px] bg-[#0c282b] text-white text-[24px] font-medium"
         >
           Sign Up
         </button>
