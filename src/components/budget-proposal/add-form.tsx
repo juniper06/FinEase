@@ -14,34 +14,49 @@ import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
+import { addBudgetProposal } from "@/actions/budget-propsal.action";
+import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   title: z.string().min(1),
-  salary: z.number().nonnegative(),
-  utilityCost: z.number().nonnegative(),
-  rentalFee: z.number().nonnegative(),
-  maintenanceCost: z.number().nonnegative(),
-  budgetSupplies: z.number().nonnegative(),
+  salary:z.coerce.number(),
+  cost: z.coerce.number(),
+  rental: z.coerce.number(),
+  maintenance: z.coerce.number(),
+  supplies: z.coerce.number(),
   assumptions: z.string().min(1),
-  methodologies: z.string().min(1),
+  methodology: z.string().min(1),
 });
 
 export default function AddBudgetProposal() {
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       salary: 0,
-      utilityCost: 0,
-      rentalFee: 0,
-      maintenanceCost: 0,
-      budgetSupplies: 0,
+      cost: 0,
+      rental: 0,
+      maintenance: 0,
+      supplies: 0,
       assumptions: "",
-      methodologies: "",
+      methodology: "",
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    const result = await addBudgetProposal(values);
+    if(result.error) {
+      console.log(result.message);
+      toast({
+        title: "Failed to Add Budget Proposal"
+      });
+      return;
+    }
+    toast({
+      title: "Successfully added Budget Proposal",
+    });
+    console.log("Other form data:", values);
     console.log({ values });
   };
 
@@ -49,7 +64,7 @@ export default function AddBudgetProposal() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="w-[500px] flex flex-col gap-5 justify-center items-center"
+        className="flex flex-col gap-5 justify-center items-center"
       >
         <FormField
           control={form.control}
@@ -88,7 +103,7 @@ export default function AddBudgetProposal() {
           />
           <FormField
             control={form.control}
-            name="utilityCost"
+            name="cost"
             render={({ field }) => {
               return (
                 <FormItem>
@@ -107,7 +122,7 @@ export default function AddBudgetProposal() {
         <div className="flex gap-1">
           <FormField
             control={form.control}
-            name="rentalFee"
+            name="rental"
             render={({ field }) => {
               return (
                 <FormItem>
@@ -125,7 +140,7 @@ export default function AddBudgetProposal() {
           />
           <FormField
             control={form.control}
-            name="maintenanceCost"
+            name="maintenance"
             render={({ field }) => {
               return (
                 <FormItem>
@@ -143,7 +158,7 @@ export default function AddBudgetProposal() {
         </div>
         <FormField
           control={form.control}
-          name="budgetSupplies"
+          name="supplies"
           render={({ field }) => {
             return (
               <FormItem>
@@ -177,12 +192,12 @@ export default function AddBudgetProposal() {
         />
         <FormField
           control={form.control}
-          name="methodologies"
+          name="methodology"
           render={({ field }) => {
             return (
               <FormItem>
                 <FormLabel className="text-[16px] font-medium">
-                Input methodologies
+                Input methodology
                 </FormLabel>
                 <FormControl>
                   <Textarea {...field} className="w-[300px] md:w-[555px]"/>

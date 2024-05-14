@@ -1,9 +1,10 @@
 "use server";
 import { useFetch } from "@/lib/fetch";
 
-export async function addIncomeSource(values: any) {
+
+export async function addBudgetProposal(values: any) {
   const response = await useFetch(
-    `${process.env.SERVER_API}/income-source`,
+    `${process.env.SERVER_API}/budget-proposal`,
     {
       method: "POST",
       body: JSON.stringify(values),

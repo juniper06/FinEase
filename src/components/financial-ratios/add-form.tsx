@@ -13,28 +13,44 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { useToast } from "@/components/ui/use-toast";
+import { addFinancialRatio } from "@/actions/financial-ratio.action";
 
 const formSchema = z.object({
-  currentAssets: z.string().min(1),
-  revenue: z.number().nonnegative(),
-  liabilities: z.number().nonnegative(),
-  netIncome: z.number().nonnegative(),
+  assets: z.coerce.number(),
+  revenue: z.coerce.number(),
+  liabilities: z.coerce.number(),
+  netIncome: z.coerce.number(),
 });
 
 export default function AddFinancialRatios() {
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      currentAssets: "",
+      assets: 0,
       revenue: 0,
       liabilities: 0,
       netIncome: 0,
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    const result = await addFinancialRatio(values);
+    if(result.error) {
+      console.log(result.message);
+      toast({
+        title: "Failed to Financial Ratio"
+      });
+      return;
+    }
+    toast({
+      title: "Successfully added Financial Ratio",
+    });
+    console.log("Other form data:", values);
     console.log({ values });
   };
+
   return (
     <Form {...form}>
       <form
@@ -43,7 +59,7 @@ export default function AddFinancialRatios() {
       >
         <FormField
           control={form.control}
-          name="currentAssets"
+          name="assets"
           render={({ field }) => {
             return (
               <FormItem>
