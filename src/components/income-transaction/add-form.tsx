@@ -51,7 +51,7 @@ const formSchema = z.object({
 
 export default function AddBusinessTransaction() {
   const [file, setFile] = useState<File>();
-  const [incomeSourceList, setIncomeSourceList] = useState<any>([]);
+  const [incomeSourceList, setIncomeSourceList] = useState<any[]>([]);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -81,8 +81,8 @@ export default function AddBusinessTransaction() {
         String(values[key as keyof z.infer<typeof formSchema>])
       );
     });
-    console.log(formData.getAll)
-    console.log(values)
+    console.log(formData.getAll);
+    console.log(values);
     const result = await addIncomeTransaction(formData);
     if (result.error) {
       console.log(result.message);
@@ -119,15 +119,18 @@ export default function AddBusinessTransaction() {
                 <FormLabel className="text-[16px] font-medium">
                   Select Income Source
                 </FormLabel>
-                <Select onValueChange={field.onChange}>
+                <Select
+                  value={field.value ? String(field.value) : ""}
+                  onValueChange={(value) => field.onChange(Number(value))}
+                >
                   <FormControl>
                     <SelectTrigger className="w-[300px] md:w-[555px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
                       <SelectValue placeholder="Select Income Source" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="bg-[#119fa4] text-white font-medium ">
-                    {incomeSourceList.map((incomeSource: any) => (
-                      <SelectItem key={incomeSource.id} value={incomeSource.id}>
+                    {incomeSourceList.map((incomeSource) => (
+                      <SelectItem key={incomeSource.id} value={String(incomeSource.id)}>
                         {incomeSource.name}
                       </SelectItem>
                     ))}
@@ -172,7 +175,7 @@ export default function AddBusinessTransaction() {
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-[300px] md:w-[275px] h-[60px] pl-3 text-left font-medium bg-white text-black rounded-[5px] drop-shadow-xl border border-input",
+                          "w-auto md:w-[275px] h-[60px] pl-3 text-left font-medium bg-white text-black rounded-[5px] drop-shadow-xl border border-input",
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -246,7 +249,7 @@ export default function AddBusinessTransaction() {
               accept="image/*"
               multiple={false}
               onChange={handleChangeReceipt}
-              className="bg-white w-[300px] md:w-[555px]" 
+              className="bg-white w-[300px] md:w-[555px]"
             />
           </FormControl>
           <FormMessage />

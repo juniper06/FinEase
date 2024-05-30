@@ -26,6 +26,7 @@ const formSchema = z.object({
   supplies: z.coerce.number(),
   assumptions: z.string().min(1),
   methodology: z.string().min(1),
+  status: z.string().min(1),
 });
 
 export default function AddBudgetProposal() {
@@ -41,6 +42,7 @@ export default function AddBudgetProposal() {
       supplies: 0,
       assumptions: "",
       methodology: "",
+      status: "PENDING",
     },
   });
 

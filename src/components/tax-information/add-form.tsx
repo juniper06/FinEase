@@ -34,9 +34,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 
 const formSchema = z.object({
-  stateIncomeTax: z.number().nonnegative(),
-  salesTaxRate: z.number().nonnegative(),
-  payrollTaxRate: z.number().nonnegative(),
+  stateIncomeTax: z.coerce.number(),
+  salesTaxRate: z.coerce.number(),
+  payrollTaxRate: z.coerce.number(),
   dueDate: z.date({
     required_error: "A date of income transaction is required.",
   }),
@@ -122,7 +122,7 @@ export default function AddTaxInformation() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[16px] font-medium">
-                  Input Due Date
+                  Select Due Date
                 </FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>

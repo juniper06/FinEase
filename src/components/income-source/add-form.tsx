@@ -27,7 +27,6 @@ export default function AddIncomeSource() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      budget: 0,
     },
   });
 
@@ -61,23 +60,6 @@ export default function AddIncomeSource() {
               <FormItem>
                 <FormLabel className="text-[16px] font-medium">
                   Input Income Source
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} className="w-[350px] md:w-[400px]" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
-        />
-        <FormField
-          control={form.control}
-          name="budget"
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormLabel className="text-[16px] font-medium">
-                  Input Income Budget
                 </FormLabel>
                 <FormControl>
                   <Input {...field} className="w-[350px] md:w-[400px]" />
