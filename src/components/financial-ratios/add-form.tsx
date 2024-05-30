@@ -40,7 +40,7 @@ export default function AddFinancialRatios() {
     if(result.error) {
       console.log(result.message);
       toast({
-        title: "Failed to Financial Ratio"
+        title: "Failed to add Financial Ratio"
       });
       return;
     }

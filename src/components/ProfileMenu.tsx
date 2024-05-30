@@ -24,8 +24,8 @@ export default async function ProfileMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger>
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarImage src="https://github.com/shadcn.png"/>
+            <AvatarFallback className="text-black bg-white">CN</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="text-white bg-[#103438] rounded-[10px] border-transparent" align="end">

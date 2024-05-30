@@ -13,22 +13,38 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { useToast } from "@/components/ui/use-toast";
+import { addExpensesCategory } from "@/actions/expenses-action";
 
 const formSchema = z.object({
-  expenseCategory: z.string().min(1),
+  name: z.string().min(1),
 });
 
 export default function AddExpensesCategory() {
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      expenseCategory: "",
+      name: "",
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    const result = await addExpensesCategory(values);
+    if(result.error) {
+      console.log(result.message);
+      toast({
+        title: "Failed to add Expenses Category"
+      });
+      return;
+    }
+    toast({
+      title: "Successfully added Expenses Category",
+    });
+    console.log("Other form data:", values);
     console.log({ values });
   };
+
   return (
     <Form {...form}>
       <form
@@ -37,7 +53,7 @@ export default function AddExpensesCategory() {
       >
         <FormField
           control={form.control}
-          name="expenseCategory"
+          name="name"
           render={({ field }) => {
             return (
               <FormItem>

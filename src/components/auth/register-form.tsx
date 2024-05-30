@@ -9,19 +9,19 @@ import { z } from "zod";
 export const userSchema = z
   .object({
     username: z.string().min(1, {
-      message: "Username of user must required!",
+      message: "Username of user is required!",
     }),
     password: z.string().min(1, {
-      message: "Password of user must required!",
+      message: "Password of user is required!",
     }),
     confirmPassword: z.string(),
     mobileNumber: z.string().min(1, {
-      message: "Mobile number of user must required!",
+      message: "Mobile number of user is required!",
     }),
     email: z
       .string()
       .min(1, {
-        message: "Sponsor of member must required!",
+        message: "Email of member is required!",
       })
       .email("This is not a valid email."),
   })
@@ -62,7 +62,6 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col w-[350px] md:w-[450px] md:justify-start md:items-start">
-      {/* ari ko last */}
       <div className="flex gap-[10px] justify-start">
         <div className="flex flex-col">
           <label

@@ -35,7 +35,7 @@ export default function Navbar() {
       </Link>
       <nav className="hidden flex-col gap-6 text-lg text-white font-medium md:w-full md:flex md:flex-row md:justify-end md:items-end md:gap-8 md:text-[20px] lg:gap-6">
         <Link
-          href="#"
+          href="/"
           className="text-foreground transition-colors hover:text-foreground"
         >
           Dashboard
