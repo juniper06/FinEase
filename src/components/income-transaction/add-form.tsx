@@ -1,5 +1,6 @@
 "use client";
-import { Calendar } from "@/components/ui/calendar";
+import Calendar from "react-calendar";
+import 'react-calendar/dist/Calendar.css';
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -9,9 +10,7 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -45,7 +44,7 @@ const formSchema = z.object({
   transactionDate: z.date({
     required_error: "A date of income transaction is required.",
   }),
-  referenceNumber: z.string().optional(),
+  referenceNumber: z.string().min(1),
   notes: z.string().min(1),
 });
 
@@ -56,6 +55,7 @@ export default function AddBusinessTransaction() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      sourceId: 0,
       incomeAmount: 0,
       transactionDate: new Date(),
       referenceNumber: "",
@@ -94,7 +94,6 @@ export default function AddBusinessTransaction() {
     toast({
       title: "Successfully added Income Source",
     });
-    // Remaining form data
     console.log("Other form data:", values);
   };
 
@@ -136,7 +135,6 @@ export default function AddBusinessTransaction() {
                     ))}
                   </SelectContent>
                 </Select>
-
                 <FormMessage />
               </FormItem>
             );
@@ -190,13 +188,10 @@ export default function AddBusinessTransaction() {
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 bg-white" align="start">
                     <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      initialFocus
+                      onChange={field.onChange}
+                      value={field.value}
+                      maxDate={new Date()}
+                      minDate={new Date("1900-01-01")}
                     />
                   </PopoverContent>
                 </Popover>

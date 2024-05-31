@@ -21,7 +21,7 @@ export default function ManageFinances() {
         <Link href="/manage-finances/add-tax-information">
           <ButtonChoices>Add Tax Information</ButtonChoices>
         </Link>
-        <Link href="/manage-finances/view-income-source">
+        <Link href="/manage-finances/view-budget-proposals">
           <ButtonChoices>View Budget Proposal History</ButtonChoices>
         </Link>
         <Link href="/manage-finances/view-transaction-history">
