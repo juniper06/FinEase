@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { BudgetProposal, getBudgetProposals } from "@/actions/budget-propsal.action";
+import { deleteBudgetProposal } from "@/actions/budget-propsal.action";
 
 export default function BudgetProposalTable() {
   const [budgetProposals, setBudgetProposals] = useState<BudgetProposal[]>([]);
@@ -9,6 +10,17 @@ export default function BudgetProposalTable() {
   useEffect(() => {
     getBudgetProposals().then(data => setBudgetProposals(data));
   }, []);
+
+  const handleDelete = async (id: number) => {
+    const result = await deleteBudgetProposal(String(id));
+    if (result.error) {
+      console.error("Error:", result.error);
+    } else {
+      setBudgetProposals(prevProposals =>
+        prevProposals.filter(proposal => proposal.id !== id)
+      );
+    }
+  };
 
   return (
     <table className="my-4 bg-cornsilk-500 rounded-lg">
@@ -28,7 +40,12 @@ export default function BudgetProposalTable() {
             <td className="text-center border-black">{proposal.status}</td>
             <td className="text-center border-black border-r-4">
               <div className="md:h-full md:w-full md:flex md:justify-center md:items-center md:gap-y-3 md:gap-x-3 md:px-2 md:py-4">
-                <Button className="md:h-[50px] md:w-[200px] md:text-[20px] md:rounded-full">Delete</Button>
+                <Button 
+                  className="md:h-[50px] md:w-[200px] md:text-[20px] md:rounded-full" 
+                  onClick={() => handleDelete(proposal.id)}
+                >
+                  Delete
+                </Button>
               </div>
             </td>
           </tr>
