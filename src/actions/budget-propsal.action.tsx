@@ -5,6 +5,14 @@ export interface BudgetProposal {
   id: number;
   title: string;
   status: string;
+  createdAt: string;
+  cost: number;
+  salary: number;
+  rental: number;
+  maintenance: number;
+  supplies: number;
+  assumptions: string;
+  methodology: string;
 }
 
 export async function addBudgetProposal(values: any) {
@@ -59,6 +67,35 @@ export async function deleteBudgetProposal(id: string) {
   if (response.status === 500) {
     return {
       error: "Something went wrong",
+    };
+  }
+
+  return response.json();
+}
+
+export async function updateBudgetProposal(id: string, values: any) {
+  console.log(`Updating proposal with id: ${id}, values: ${JSON.stringify(values)}`);
+  const response = await useFetch(
+    `${process.env.SERVER_API}/budget-proposal/${id}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(values),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  console.log(`Response status: ${response.status}`);
+  
+  if (response.status === 500) {
+    return {
+      error: "Something went wrong",
+    };
+  }
+  if (response.status === 404) {
+    return {
+      error: "Not Found",
     };
   }
 

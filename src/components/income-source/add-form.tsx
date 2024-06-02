@@ -27,6 +27,7 @@ export default function AddIncomeSource() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      budget: 0,
     },
   });
 

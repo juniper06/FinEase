@@ -1,4 +1,5 @@
 "use client";
+import React, { useEffect, useState } from "react";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
@@ -32,40 +33,80 @@ import { Button } from "../ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { addExpenses, getExpensesCategoryList } from "@/actions/expenses-action";
 
-const Categories = z.enum(["Salary", "Freelance", "Investment", "Other"]);
-const ModeOfPayment = z.enum([
+const modeOfPayment = z.enum([
   "Cash",
   "Credit Card",
   "Bank Transfer",
   "Online Payment Systems",
-  "Other",
 ]);
 
 const formSchema = z.object({
-  expensesTitle: z.string().min(1),
-  category: Categories,
-  amount: z.number().nonnegative(),
-  expenseDate: z.date(),
-  modeOfPayment: ModeOfPayment,
+  title: z.string().min(1),
+  sourceId: z.string().min(1), // Updated to be a string to accommodate dynamic categories
+  amount: z.coerce.number(),
+  date: z.date(),
+  modeOfPayment: modeOfPayment,
   notes: z.string().min(1),
 });
 
 export default function AddExpenses() {
+  const { toast } = useToast();
+  const [file, setFile] = useState<File>();
+  const [categoryList, setCategoryList] = useState<any[]>([]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      expensesTitle: "",
-      category: "Freelance",
+      title: "",
+      sourceId: "",
       amount: 0,
-      expenseDate: new Date(),
+      date: new Date(),
       modeOfPayment: "Cash",
       notes: "",
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log({ values });
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await getExpensesCategoryList();
+      setCategoryList(result);
+      console.log(result);
+      console.log("Successfully fetched");
+    };
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    const formData = new FormData();
+    Object.keys(values).forEach((key) => {
+      formData.append(
+        key,
+        String(values[key as keyof z.infer<typeof formSchema>])
+      );
+    });
+    console.log(formData.getAll);
+    console.log(values);
+    const result = await addExpenses(formData);
+    if (result.error) {
+      console.log(result.message);
+      toast({
+        title: "Failed to add Expenses Information",
+      });
+      return;
+    }
+    toast({
+      title: "Successfully added Expenses Information",
+    });
+    console.log("Other form data:", values);
+  };
+
+  const handleChangeReceipt = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    }
   };
 
   return (
@@ -76,7 +117,7 @@ export default function AddExpenses() {
       >
         <FormField
           control={form.control}
-          name="expensesTitle"
+          name="title"
           render={({ field }) => {
             return (
               <FormItem>
@@ -94,7 +135,7 @@ export default function AddExpenses() {
         <div className="flex gap-1">
           <FormField
             control={form.control}
-            name="category"
+            name="sourceId"
             render={({ field }) => {
               return (
                 <FormItem>
@@ -102,19 +143,19 @@ export default function AddExpenses() {
                     Select Category
                   </FormLabel>
                   <FormControl>
-                    <Select>
+                    <Select onValueChange={field.onChange}>
                       <SelectTrigger className="w-[170px] md:w-[245px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
                         <SelectValue placeholder="Select Income Source" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#119fa4] text-white font-medium w-[150px] md:w-[245px]">
-                        <SelectGroup>
-                          <SelectLabel>Income Sources</SelectLabel>
-                          <SelectItem value="apple">Apple</SelectItem>
-                          <SelectItem value="banana">Banana</SelectItem>
-                          <SelectItem value="blueberry">Blueberry</SelectItem>
-                          <SelectItem value="grapes">Grapes</SelectItem>
-                          <SelectItem value="pineapple">Pineapple</SelectItem>
-                        </SelectGroup>
+                        {categoryList.map((expensesCategory) => (
+                          <SelectItem
+                            key={expensesCategory.id}
+                            value={String(expensesCategory.id)}
+                          >
+                            {expensesCategory.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -144,7 +185,7 @@ export default function AddExpenses() {
         <div className="flex gap-1">
           <FormField
             control={form.control}
-            name="expenseDate"
+            name="date"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-[16px] font-medium">
@@ -169,7 +210,10 @@ export default function AddExpenses() {
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-white " align="start">
+                  <PopoverContent
+                    className="w-auto p-0 bg-white "
+                    align="start"
+                  >
                     <Calendar
                       mode="single"
                       selected={field.value}
@@ -195,18 +239,23 @@ export default function AddExpenses() {
                     Select Mode of Payment
                   </FormLabel>
                   <FormControl>
-                    <Select>
+                    <Select onValueChange={field.onChange}>
                       <SelectTrigger className="w-[160px] md:w-[245px] h-[60px] rounded-[5px] bg-white drop-shadow-xl">
-                        <SelectValue placeholder="Select Income Source" />
+                        <SelectValue placeholder="Select Mode of Payment" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#119fa4] text-white font-medium ">
                         <SelectGroup>
-                          <SelectLabel>Income Sources</SelectLabel>
-                          <SelectItem value="apple">Apple</SelectItem>
-                          <SelectItem value="banana">Banana</SelectItem>
-                          <SelectItem value="blueberry">Blueberry</SelectItem>
-                          <SelectItem value="grapes">Grapes</SelectItem>
-                          <SelectItem value="pineapple">Pineapple</SelectItem>
+                          <SelectLabel>Mode of Payment</SelectLabel>
+                          <SelectItem value="Cash">Cash</SelectItem>
+                          <SelectItem value="Credit Card">
+                            Credit Card
+                          </SelectItem>
+                          <SelectItem value="Bank Transfer">
+                            Bank Transfer
+                          </SelectItem>
+                          <SelectItem value="Online Payment Systems">
+                            Online Payment Systems
+                          </SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -217,23 +266,21 @@ export default function AddExpenses() {
             }}
           />
         </div>
-        <FormField
-          control={form.control}
-          name=""
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormLabel className="text-[16px] font-medium">
-                  Attach Receipt
-                </FormLabel>
-                <FormControl>
-                  <Input type="file" {...field} className="bg-white w-[340px] md:w-[555px]" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
-        />
+        <FormItem>
+          <FormLabel className="text-[16px] font-medium">
+            Attach Receipt
+          </FormLabel>
+          <FormControl>
+            <Input
+              type="file"
+              accept="image/*"
+              multiple={false}
+              onChange={handleChangeReceipt}
+              className="bg-white w-[300px] md:w-[555px]"
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
         <FormField
           control={form.control}
           name="notes"
@@ -241,10 +288,10 @@ export default function AddExpenses() {
             return (
               <FormItem>
                 <FormLabel className="text-[16px] font-medium">
-                  Input Notes
+                  Input notes
                 </FormLabel>
                 <FormControl>
-                  <Textarea {...field} className="w-[340px] md:w-[555px]"/>
+                  <Textarea {...field} className="w-[340px] md:w-[555px]" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

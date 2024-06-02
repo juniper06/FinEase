@@ -39,17 +39,17 @@ import {
 } from "@/actions/income-transaction.action";
 
 const formSchema = z.object({
-  sourceId: z.coerce.number(),
+  sourceId: z.number().min(1, "Source ID must be a positive number"),
   incomeAmount: z.coerce.number(),
   transactionDate: z.date({
     required_error: "A date of income transaction is required.",
   }),
-  referenceNumber: z.string().min(1),
-  notes: z.string().min(1),
+  referenceNumber: z.string().min(1, "Reference number must be provided"),
+  notes: z.string().min(1, "Notes must be provided"),
 });
 
 export default function AddBusinessTransaction() {
-  const [file, setFile] = useState<File>();
+  const [file, setFile] = useState<File | null>(null);
   const [incomeSourceList, setIncomeSourceList] = useState<any[]>([]);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -76,13 +76,20 @@ export default function AddBusinessTransaction() {
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     const formData = new FormData();
     Object.keys(values).forEach((key) => {
-      formData.append(
-        key,
-        String(values[key as keyof z.infer<typeof formSchema>])
-      );
+      if (key === 'transactionDate') {
+        formData.append(key, (values[key as keyof z.infer<typeof formSchema>] as Date).toISOString());
+      } else {
+        formData.append(key, String(values[key as keyof z.infer<typeof formSchema>]));
+      }
     });
+
+    if (file) {
+      formData.append('file', file);
+    }
+
     console.log(formData.getAll);
     console.log(values);
+
     const result = await addIncomeTransaction(formData);
     if (result.error) {
       console.log(result.message);
@@ -92,7 +99,7 @@ export default function AddBusinessTransaction() {
       return;
     }
     toast({
-      title: "Successfully added Income Source",
+      title: "Successfully added Income Transaction",
     });
     console.log("Other form data:", values);
   };
