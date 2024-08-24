@@ -64,3 +64,15 @@ model Customer {
   state       String
   zipCode     Int
 }
+
+model Invoice {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  invoiceNumber String
+  dueDate       DateTime
+  customerId Int
+  customers  Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  itemId Int
+  items  Item @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
