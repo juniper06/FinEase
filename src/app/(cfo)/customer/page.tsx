@@ -1,3 +1,4 @@
+import { ProjectsTable } from "@/components/cfo/projects/table";
 import Layout from "@/components/Navbar";
 import { Customer, customerColumns } from "@/components/cfo/customers/columns";
 import { DataTable } from "@/components/data-table";
@@ -30,6 +31,7 @@ export default async function CustomerPage() {
         <Button className="flex gap-2 text-md" asChild><Link href="/customers/add-customer"><CirclePlus className="h-6 w-6"/>New</Link></Button>
       </div>
       <Separator/>
+      <ProjectsTable/>
       <DataTable columns={customerColumns} data={data} />
     </Layout>
   );
