@@ -11,8 +11,22 @@ export class ProjectService {
     return this.prisma.project.findMany();
   }
 
-  findOne(id: number) {
-    return this.prisma.project.findUnique({ where: { id } });
+  async findOne(id: number) {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      include: {
+        projectUsers: true,
+        ProjectTasks: true,
+        customer: true, 
+      },
+    });
+    if (project) {
+      return {
+        ...project,
+        customerName: `${project.customer.firstName} ${project.customer.lastName}`,
+      };
+    }
+    return null;
   }
 
   create(createProjectDto: CreateProjectDto) {
