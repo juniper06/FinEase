@@ -81,3 +81,15 @@ model Category {
   id           Int    @id @default(autoincrement())
   categoryName String
 }
+
+model Expenses {
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  transactionDate DateTime
+  amount          Int
+  modeOfPayment   String
+  referenceNumber String   @unique
+  categoryId Int
+  categories Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
