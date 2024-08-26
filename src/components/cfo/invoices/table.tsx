@@ -49,6 +49,25 @@ export const InvoiceTable = () => {
     fetchData();
   }, [fetchData]);
 
+  const handleDelete = async (id: string) => {
+    const result = await deleteInvoice(id);
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: "Invoice deleted successfully.",
+      });
+      await fetchData();
+      setTableKey((prevKey) => prevKey + 1);
+    } else {
+      console.error("Failed to delete Invoice:", result.error);
+      toast({
+        title: "Error",
+        description: result.error || "Failed to delete Invoice. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }

@@ -45,3 +45,29 @@ export async function getInvoice(id: string) {
   }
   return response.json();
 }
+
+export async function deleteInvoice(id: string) {
+  try {
+    const response = await useFetch(`${process.env.SERVER_API}/invoice/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      let errorMessage = "Failed to delete invoice.";
+      if (response.status === 404) {
+        errorMessage = "invoice not found.";
+      } else {
+        errorMessage = "Something went wrong.";
+      }
+      return {
+        error: errorMessage,
+      };
+    }
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      error: "Network error. Please try again.",
+    };
+  }
+}
