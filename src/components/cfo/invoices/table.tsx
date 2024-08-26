@@ -29,7 +29,7 @@ export const InvoiceTable = () => {
 
       const updatedInvoices = invoices.map((invoice) => ({
         ...invoice,
-        customerName: customerMap[invoice.customerId], // Changed to customerName
+        customerName: customerMap[invoice.customerId],
       }));
 
       setData(updatedInvoices);

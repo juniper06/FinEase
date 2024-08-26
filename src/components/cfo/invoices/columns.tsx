@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import Link from "next/link";
 
 
 export type Invoices = {
@@ -79,6 +80,11 @@ export const invoicesColumns: ColumnDef<Invoices>[] = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+                <Link href={`/invoices/edit-invoice/${invoice.id}`}>
+                  Edit
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>Edit</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setIsAlertOpen(true)}>
                 Delete

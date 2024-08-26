@@ -71,3 +71,30 @@ export async function deleteInvoice(id: string) {
     };
   }
 }
+
+export async function editInvoice(id: string, values: any) {
+  try {
+    const response = await useFetch(`${process.env.SERVER_API}/invoice/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(values),
+    });
+    if (!response.ok) {
+      let errorMessage = "Failed to update invoice.";
+      if (response.status === 404) {
+        errorMessage = "invoice not found.";
+      } else {
+        errorMessage = "Something went wrong.";
+      }
+      return {
+        error: errorMessage,
+      };
+    }
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      error: "Network error. Please try again.",
+    };
+  }
+}
