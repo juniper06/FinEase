@@ -4,8 +4,9 @@ import {
     Delete,
     Get,
     Param,
+    Patch,
     Post,
-    Put,
+    
   } from '@nestjs/common';
   import { ExpensesService } from './expenses.service';
   import { CreateExpensesDto } from './dto/create-expenses.dto';
@@ -30,7 +31,7 @@ import {
       return this.expensesService.create(createExpensesDto);
     }
   
-    @Put(':id')
+    @Patch(':id')
     update(@Param('id') id: string, @Body() updateExpensesDto: UpdateExpensesDto) {
       return this.expensesService.update(+id, updateExpensesDto);
     }

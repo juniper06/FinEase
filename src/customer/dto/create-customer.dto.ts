@@ -3,6 +3,11 @@ import { IsNotEmpty, IsNumber, IsString, Length } from 'class-validator';
 
 export class CreateCustomerDto {
   @IsNotEmpty()
+  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  userId: number;
+  
+  @IsNotEmpty()
   @IsString()
   type: string;
 
