@@ -17,14 +17,19 @@ class UserDto {
   userEmail: string;
 }
 
-class TaskDto {
+class ResourceDto {
   @IsNotEmpty()
   @IsString()
-  taskName: string;
+  title: string;
 
   @IsNotEmpty()
   @IsString()
-  taskDescription: string;
+  description: string;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  amount: number;
 }
 
 export class CreateProjectDto {
@@ -61,6 +66,6 @@ export class CreateProjectDto {
 
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => TaskDto)
-  tasks: TaskDto[];
+  @Type(() => ResourceDto)
+  resources: ResourceDto[];
 }
