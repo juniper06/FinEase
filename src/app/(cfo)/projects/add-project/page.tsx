@@ -1,9 +1,7 @@
 import { AddProjectForm } from "@/components/cfo/projects/add-form";
-import { ProjectsTable } from "@/components/cfo/projects/table";
 import Layout from "@/components/Navbar";
 import { Separator } from "@/components/ui/separator";
 import React from "react";
-
 export default async function AddItemPage() {
   return (
     <Layout>
@@ -14,7 +12,6 @@ export default async function AddItemPage() {
       </div>
       <Separator/>
       <AddProjectForm/>
-      <ProjectsTable/>
     </Layout>
   );
 }
