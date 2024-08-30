@@ -27,3 +27,36 @@ export async function addCustomer(values: any) {
     };
   }
 }
+
+export async function getAllCustomers(userId: string) {
+  const response = await useFetch(`${process.env.SERVER_API}/customer`, {
+    method: "GET",
+  });
+
+  if (response.status === 500) {
+    return {
+      error: "Something went wrong",
+    };
+  }
+  const customers = await response.json();
+  return customers.filter((customer: { userId: string }) => customer.userId === userId);
+}
+
+export async function getItem(id: string) {
+  const response = await useFetch(`${process.env.SERVER_API}/customer/${id}`, {
+    method: "GET",
+  });
+
+  if (response.status === 500) {
+    return {
+      error: "Something went wrong",
+    };
+  }
+
+  if (response.status === 404) {
+    return {
+      error: "Item not found",
+    };
+  }
+  return response.json();
+}
