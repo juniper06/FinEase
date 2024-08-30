@@ -30,26 +30,29 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { User, getUserData } from "@/actions/user.action";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { addCustomer } from "@/actions/customer.action";
 
 const formSchema = z.object({
-  customerType: z.string({
+  type: z.string({
     message: "Please select an Customer Type to display.",
   }),
-  customerFirstName: z.string().min(1, {
+  firstName: z.string().min(1, {
     message: "Customer First Name is Required",
   }),
-  customerLastName: z.string().min(1, {
+  lastName: z.string().min(1, {
     message: "Customer Last Name is Required",
   }),
   companyName: z.string().min(1, {
     message: "Company Name is Required",
   }),
-  customerEmail: z.string().min(1, {
+  email: z.string().min(1, {
     message: "Customer Email is Required",
   }),
-  customerNumber: z.string().min(1, {
+  phoneNumber: z.string().min(1, {
     message: "Customer Phone Number is Required",
   }),
   country: z.string().min(1, {
@@ -68,15 +71,19 @@ const formSchema = z.object({
 
 export default function CustomerForm() {
   const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      customerType: "",
-      customerFirstName: "",
-      customerLastName: "",
+      type: "",
+      firstName: "",
+      lastName: "",
       companyName: "",
-      customerEmail: "",
-      customerNumber: "",
+      email: "",
+      phoneNumber: "",
       country: "",
       city: "",
       state: "",
@@ -84,8 +91,52 @@ export default function CustomerForm() {
     },
   });
 
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const userData = await getUserData();
+        setUser(userData);
+      } catch (error) {
+        toast({
+          description: "Failed to fetch user data.",
+        });
+      }
+    }
+    fetchUserData();
+  }, [toast]);
+
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    if (!user) {
+      toast({
+        description: "You need to be logged in to create an customer.",
+      });
+      return;
+    }
+    const itemData = {
+      ...values,
+      userId: user.id,
+    };
+    const response = await addCustomer(itemData);
+    if (response.error) {
+      toast({
+        description: "Failed to add Customer",
+      });
+    } else {
+      toast({
+        description: "Customer added successfully!",
+      });
+      form.reset();
+      setIsDialogOpen(false);
+      router.push("/customers");
+    }
+  };
+
+  const handleCancel = () => {
+    form.reset();
+    toast({
+      description: "Changes have been discarded.",
+    });
+    router.push("/customers");
   };
 
   return (
@@ -98,7 +149,7 @@ export default function CustomerForm() {
           <h1 className="md:text-xl md:font-bold md:mb-5">Customer Details</h1>
           <FormField
             control={form.control}
-            name="customerType"
+            name="type"
             render={({ field }) => (
               <FormItem className="md:flex md:items-center">
                 <FormLabel className="md:w-48 md:text-lg font-light">
@@ -139,7 +190,7 @@ export default function CustomerForm() {
           <div className="md:flex md:items-end gap-x-5">
             <FormField
               control={form.control}
-              name="customerFirstName"
+              name="firstName"
               render={({ field }) => (
                 <FormItem className="md:flex md:items-center">
                   <FormLabel className="md:w-48 md:text-lg font-light">
@@ -158,7 +209,7 @@ export default function CustomerForm() {
             />
             <FormField
               control={form.control}
-              name="customerLastName"
+              name="lastName"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -175,7 +226,7 @@ export default function CustomerForm() {
           </div>
           <FormField
             control={form.control}
-            name="customerEmail"
+            name="email"
             render={({ field }) => (
               <FormItem className="md:flex md:items-center">
                 <FormLabel className="md:w-48 md:text-lg font-light">
@@ -189,7 +240,7 @@ export default function CustomerForm() {
           />
           <FormField
             control={form.control}
-            name="customerNumber"
+            name="phoneNumber"
             render={({ field }) => (
               <FormItem className="md:flex md:items-center">
                 <FormLabel className="md:w-48 md:text-lg font-light">
@@ -259,9 +310,13 @@ export default function CustomerForm() {
           />
         </div>
         <footer className="fixed bottom-0 w-full flex py-5 space-x-4">
-          <AlertDialog>
+          <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="default" className="w-[150px]">
+              <Button
+                variant="default"
+                className="w-[150px]"
+                onClick={() => setIsDialogOpen(true)}
+              >
                 Save
               </Button>
             </AlertDialogTrigger>
@@ -298,14 +353,7 @@ export default function CustomerForm() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Stay</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    form.reset();
-                    toast({
-                      description: "Changes have been discarded.",
-                    });
-                  }}
-                >
+                <AlertDialogAction onClick={handleCancel}>
                   Discard
                 </AlertDialogAction>
               </AlertDialogFooter>
