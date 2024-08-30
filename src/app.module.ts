@@ -10,8 +10,11 @@ import { InvoiceModule } from './invoice/invoice.module';
 import { CategoryModule } from './category/category.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { ItemModule } from './item/item.module';
+import { PaymentModule } from './payment/payment.module';
+
+
 @Module({
-  imports: [AuthModule, PrismaModule, UserModule, ProjectModule, CustomerModule, InvoiceModule, CategoryModule, ExpensesModule, ItemModule],
+  imports: [AuthModule, PrismaModule, UserModule, ProjectModule, CustomerModule, InvoiceModule, CategoryModule, ExpensesModule, ItemModule, PaymentModule],
   controllers: [AppController],
   providers: [AppService],
 })

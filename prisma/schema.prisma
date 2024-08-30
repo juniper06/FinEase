@@ -63,6 +63,9 @@ model Customer {
   city        String
   state       String
   zipCode     Int
+
+  invoices Invoice[]
+  payments  Payment[]
 }
 
 model Invoice {
@@ -101,4 +104,20 @@ model Item {
   unit        String
   description String
   price       Float
+}
+
+model Payment {
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  dateOfPayment   DateTime
+  paymentNumber   String
+  modeOfPayment   String
+  referenceNumber String
+
+  customerId Int
+  customers  Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  invoiceId Int
+  invoices Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
