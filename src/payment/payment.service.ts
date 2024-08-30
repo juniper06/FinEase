@@ -15,8 +15,33 @@ export class PaymentService {
     return this.prisma.payment.findUnique({ where: { id } });
   }
 
-  create(createPaymentDto: CreatePaymentDto) {
-    return this.prisma.payment.create({ data: createPaymentDto });
+  async create(createPaymentDto: CreatePaymentDto) {
+    const { userId, customerId, dateOfPayment, paymentNumber, modeOfPayment, referenceNumber, totalAmount, payments } = createPaymentDto;
+
+    return this.prisma.payment.create({
+      data: {
+        user: { connect: { id: userId } },
+        customers: { connect: { id: customerId } },
+        dateOfPayment,
+        paymentNumber,
+        modeOfPayment,
+        referenceNumber,
+        totalAmount,
+        paymentItems: {
+          create: payments.map(payment => ({
+            amount: payment.amount,
+            invoice: { connect: { id: payment.invoiceId } }
+          }))
+        }
+      },
+      include: {
+        paymentItems: {
+          include: {
+            invoice: true
+          }
+        }
+      }
+    });
   }
 
   update(id: number, updatePaymentDto: UpdatePaymentDto) {

@@ -1,9 +1,22 @@
-import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsArray, IsNotEmpty, IsNumber, IsString, ValidateNested } from 'class-validator';
+
+class PaymentItemDto {
+  @IsNotEmpty()
+  @IsNumber()
+  invoiceId: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number;
+}
 
 export class CreatePaymentDto {
   @IsNotEmpty()
-  @Transform(({ value }) => parseInt(value))
+  @IsNumber()
+  userId: number;
+  
+  @IsNotEmpty()
   @IsNumber()
   customerId: number;
 
@@ -24,7 +37,11 @@ export class CreatePaymentDto {
   referenceNumber: string;
 
   @IsNotEmpty()
-  @Transform(({ value }) => parseInt(value))
   @IsNumber()
-  invoiceId: number;
+  totalAmount: number;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PaymentItemDto)
+  payments: PaymentItemDto[];
 }

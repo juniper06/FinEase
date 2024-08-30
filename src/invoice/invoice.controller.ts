@@ -39,4 +39,9 @@ import {
     remove(@Param('id') id: string) {
       return this.invoiceService.remove(+id);
     }
+
+    @Get('customer/:customerId')
+    findByCustomerId(@Param('customerId') customerId: number) {
+      return this.invoiceService.findByCustomerId(customerId);
+    }
   }
