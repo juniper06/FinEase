@@ -18,6 +18,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -90,8 +101,8 @@ export default function CustomerForm() {
             name="customerType"
             render={({ field }) => (
               <FormItem className="md:flex md:items-center">
-                <FormLabel className="md:w-48 md:text-lg">
-                  Customer Type:
+                <FormLabel className="md:w-48 md:text-lg font-light">
+                  Customer Type
                 </FormLabel>
                 <Select
                   required
@@ -116,8 +127,8 @@ export default function CustomerForm() {
             name="companyName"
             render={({ field }) => (
               <FormItem className="md:flex md:items-center">
-                <FormLabel className="md:w-48 md:text-lg">
-                  Company Name:
+                <FormLabel className="md:w-48 md:text-lg font-light">
+                  Company Name
                 </FormLabel>
                 <FormControl>
                   <Input required {...field} className="md:w-[500px]" />
@@ -131,8 +142,8 @@ export default function CustomerForm() {
               name="customerFirstName"
               render={({ field }) => (
                 <FormItem className="md:flex md:items-center">
-                  <FormLabel className="md:w-48 md:text-lg">
-                    Customer Name:
+                  <FormLabel className="md:w-48 md:text-lg font-light">
+                    Customer Name
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -167,8 +178,8 @@ export default function CustomerForm() {
             name="customerEmail"
             render={({ field }) => (
               <FormItem className="md:flex md:items-center">
-                <FormLabel className="md:w-48 md:text-lg">
-                  Customer Email:
+                <FormLabel className="md:w-48 md:text-lg font-light">
+                  Customer Email
                 </FormLabel>
                 <FormControl>
                   <Input required {...field} className="md:w-[500px]" />
@@ -181,8 +192,8 @@ export default function CustomerForm() {
             name="customerNumber"
             render={({ field }) => (
               <FormItem className="md:flex md:items-center">
-                <FormLabel className="md:w-48 md:text-lg">
-                  Customer Phone:
+                <FormLabel className="md:w-48 md:text-lg font-light">
+                  Customer Phone
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -203,7 +214,7 @@ export default function CustomerForm() {
             name="country"
             render={({ field }) => (
               <FormItem className="md:flex md:items-center">
-                <FormLabel className="md:w-48 md:text-lg">Address:</FormLabel>
+                <FormLabel className="md:w-48 md:text-lg font-light">Address</FormLabel>
                 <FormControl>
                   <Input required {...field} className="md:w-[500px]" />
                 </FormControl>
@@ -215,7 +226,7 @@ export default function CustomerForm() {
             name="city"
             render={({ field }) => (
               <FormItem className="md:flex md:items-center">
-                <FormLabel className="md:w-48 md:text-lg">City:</FormLabel>
+                <FormLabel className="md:w-48 md:text-lg font-light">City</FormLabel>
                 <FormControl>
                   <Input required {...field} className="md:w-[500px]" />
                 </FormControl>
@@ -227,7 +238,7 @@ export default function CustomerForm() {
             name="state"
             render={({ field }) => (
               <FormItem className="md:flex md:items-center">
-                <FormLabel className="md:w-48 md:text-lg">State:</FormLabel>
+                <FormLabel className="md:w-48 md:text-lg font-light">State</FormLabel>
                 <FormControl>
                   <Input required {...field} className="md:w-[500px]" />
                 </FormControl>
@@ -239,15 +250,68 @@ export default function CustomerForm() {
             name="zipCode"
             render={({ field }) => (
               <FormItem className="md:flex md:items-center">
-                <FormLabel className="md:w-48 md:text-lg">Zip Code:</FormLabel>
+                <FormLabel className="md:w-48 md:text-lg font-light">Zip Code</FormLabel>
                 <FormControl>
                   <Input required {...field} className="md:w-[500px]" />
                 </FormControl>
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
         </div>
+        <footer className="fixed bottom-0 w-full flex py-5 space-x-4">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="default" className="w-[150px]">
+                Save
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Save Changes</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to save these changes?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="w-[150px]">
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  className="w-[150px]"
+                  onClick={form.handleSubmit(handleSubmit)}
+                >
+                  Save
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline">Cancel</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Cancel Changes</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to cancel? Unsaved changes will be lost.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Stay</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    form.reset();
+                    toast({
+                      description: "Changes have been discarded.",
+                    });
+                  }}
+                >
+                  Discard
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </footer>
       </form>
     </Form>
   );
