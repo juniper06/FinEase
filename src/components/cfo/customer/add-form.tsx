@@ -87,7 +87,7 @@ export default function CustomerForm() {
       country: "",
       city: "",
       state: "",
-      zipCode: 6000,
+      zipCode: 0,
     },
   });
 

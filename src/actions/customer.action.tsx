@@ -60,3 +60,29 @@ export async function getItem(id: string) {
   }
   return response.json();
 }
+
+export async function deleteCustomer(id: string) {
+    try {
+      const response = await useFetch(`${process.env.SERVER_API}/customer/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        let errorMessage = "Failed to delete customer.";
+        if (response.status === 404) {
+          errorMessage = "Item not found.";
+        } else {
+          errorMessage = "Something went wrong.";
+        }
+        return {
+          error: errorMessage,
+        };
+      }
+      return {
+        success: true,
+      };
+    } catch (error) {
+      return {
+        error: "Network error. Please try again.",
+      };
+    }
+  }
