@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as z from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -61,10 +61,11 @@ import { CalendarIcon, CirclePlus, CirclePlusIcon, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { AddCategory } from "./add-category";
+import { User, getUserData } from "@/actions/user.action";
 
 const formSchema = z.object({
-  date: z.string({
-    message: "Due Date is Required",
+  transactionDate: z.string().datetime({
+    message: "Transaction Date is Required",
   }),
   categoryName: z.string({
     message: "Category is Required",
@@ -81,17 +82,32 @@ const formSchema = z.object({
 export const AddExpensesForm = () => {
   const { toast } = useToast();
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: "",
+      transactionDate: "",
       categoryName: "",
       amount: 0,
       referenceNumber: "",
       modeOfPayment: "",
     },
   });
+
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const userData = await getUserData();
+        setUser(userData);
+      } catch (error) {
+        toast({
+          description: "Failed to fetch user data.",
+        });
+      }
+    }
+    fetchUserData();
+  }, [toast]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
@@ -105,11 +121,11 @@ export const AddExpensesForm = () => {
       >
         <FormField
           control={form.control}
-          name="date"
+          name="transactionDate"
           render={({ field }) => (
             <FormItem className="md:flex md:items-center">
               <FormLabel className="md:w-60 md:text-lg font-light">
-                Date
+                Date of Transaction
               </FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
@@ -195,7 +211,7 @@ export const AddExpensesForm = () => {
                 Amount ( ₱ )
               </FormLabel>
               <FormControl>
-                <Input required {...field} />
+                <Input required {...field} className="md:w-[400px]"/>
               </FormControl>
             </FormItem>
           )}
@@ -218,7 +234,6 @@ export const AddExpensesForm = () => {
                   <SelectItem value="cash">Cash</SelectItem>
                   <SelectItem value="creditCard">Credit Card</SelectItem>
                   <SelectItem value="bankTransfer">Bank Transfer</SelectItem>
-                  <SelectItem value="bankTransfer">Bank Transfer</SelectItem>
                   <SelectItem value="cheque">Cheque</SelectItem>
                 </SelectContent>
               </Select>
@@ -234,7 +249,7 @@ export const AddExpensesForm = () => {
                 Reference #
               </FormLabel>
               <FormControl>
-                <Input required {...field} />
+                <Input required {...field} className="md:w-[400px]"/>
               </FormControl>
             </FormItem>
           )}

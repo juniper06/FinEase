@@ -1,3 +1,5 @@
+import { addCategory } from "@/actions/category.action";
+import { User, getUserData } from "@/actions/user.action";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -5,37 +7,75 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const formSchema = z.object({
-  category: z.string({
-    message: "Due Date is Required",
+  categoryName: z.string({
+    message: "Category Name is Required",
   }),
 });
 
 export const AddCategory = () => {
+  const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      category: "",
+      categoryName: "",
     },
   });
 
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const userData = await getUserData();
+        setUser(userData);
+      } catch (error) {
+        toast({
+          description: "Failed to fetch user data.",
+        });
+      }
+    }
+    fetchUserData();
+  }, [toast]);
+
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    if (!user) {
+      toast({
+        description: "You need to be logged in to create an category.",
+      });
+      return;
+    }
+    const categoryData = {
+      ...values,
+      userId: user.id,
+    };
+    const response = await addCategory(categoryData);
+    if (response.error) {
+      toast({
+        description: "Failed to add Category",
+      });
+    } else {
+      toast({
+        description: "Category added successfully!",
+      });
+      form.reset();
+    }
   };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)}>
         <FormField
           control={form.control}
-          name="category"
+          name="categoryName"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="md:w-60 md:text-lg ">

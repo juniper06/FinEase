@@ -112,11 +112,11 @@ export default function CustomerForm() {
       });
       return;
     }
-    const itemData = {
+    const customerData = {
       ...values,
       userId: user.id,
     };
-    const response = await addCustomer(itemData);
+    const response = await addCustomer(customerData);
     if (response.error) {
       toast({
         description: "Failed to add Customer",
