@@ -16,7 +16,7 @@ export class ProjectService {
       where: { id },
       include: {
         projectUsers: true,
-        ProjectTasks: true,
+        ProjectResources: true,
         customer: true, 
       },
     });
@@ -30,7 +30,7 @@ export class ProjectService {
   }
 
   create(createProjectDto: CreateProjectDto) {
-    const { users, tasks, ...projectData } = createProjectDto;
+    const { users, resources, ...projectData } = createProjectDto;
 
     return this.prisma.project.create({
       data: {
@@ -41,10 +41,11 @@ export class ProjectService {
             userEmail: user.userEmail,
           })),
         },
-        ProjectTasks: {
-          create: tasks.map((task) => ({
-            taskName: task.taskName,
-            taskDescription: task.taskDescription,
+        ProjectResources: {
+          create: resources.map((resource) => ({
+            resourceCategory: resource.resourceCategory,
+            subCategory: resource.subCategory,
+            expense: resource.expense,
           })),
         },
       },
@@ -52,7 +53,7 @@ export class ProjectService {
   }
 
   update(id: number, updateProjectDto: UpdateProjectDto) {
-    const { users, tasks, ...projectData } = updateProjectDto;
+    const { users, resources, ...projectData } = updateProjectDto;
 
     return this.prisma.project.update({
       where: { id },
@@ -65,17 +66,18 @@ export class ProjectService {
             userEmail: user.userEmail,
           })),
         },
-        ProjectTasks: {
+        ProjectResources: {
           deleteMany: {},
-          create: tasks?.map((task) => ({
-            taskName: task.taskName,
-            taskDescription: task.taskDescription,
+          create: resources?.map((resource) => ({
+            resourceCategory: resource.resourceCategory,
+            subCategory: resource.subCategory,
+            expense: resource.expense,
           })),
         },
       },
       include: {
         projectUsers: true,
-        ProjectTasks: true,
+        ProjectResources: true,
       },
     });
   }

@@ -20,16 +20,16 @@ class UserDto {
 class ResourceDto {
   @IsNotEmpty()
   @IsString()
-  title: string;
+  resourceCategory: string;
 
   @IsNotEmpty()
   @IsString()
-  description: string;
+  subCategory: string;
 
   @IsNotEmpty()
   @Transform(({ value }) => parseInt(value))
   @IsNumber()
-  amount: number;
+  expense: number;
 }
 
 export class CreateProjectDto {
@@ -58,6 +58,10 @@ export class CreateProjectDto {
   @IsNotEmpty()
   @IsString()
   description: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  totalExpenses: number;
 
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
