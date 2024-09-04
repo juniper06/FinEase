@@ -93,6 +93,9 @@ export const ProjectsColumns: ColumnDef<Project>[] = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+                <Link href={`/projects/edit-project/${project.id}`}>Edit</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setIsAlertOpen(true)}>
                 Delete
               </DropdownMenuItem>
