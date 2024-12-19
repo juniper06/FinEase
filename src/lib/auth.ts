@@ -1,4 +1,4 @@
-import NextAuth, { Session, User } from "next-auth";
+import NextAuth, { AuthError, Session, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 declare module "next-auth" {
@@ -7,10 +7,12 @@ declare module "next-auth" {
       id: string;
       email: string;
       role: string;
+      token: string;
     };
   }
   interface User {
     role: string;
+    token: string;
   }
 }
 
@@ -23,31 +25,55 @@ export const {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+
+        // for SSO
+        jwt: { label: "JWT", type: "text" },
+        userId: { label: "User ID", type: "text" },
+        role: { label: "Role", type: "text" },
       },
       authorize: async (credentials) => {
-        const res = await fetch(`${process.env.SERVER_API}/auth/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password,
-          }),
-        });
-        const result = await res.json();
-        if (res.status === 200) {
+        const { email, password, jwt, userId, role } = credentials;
+        if(email && password) {
+          const res = await fetch(`${process.env.SERVER_API}/users/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: email,
+              password: password,
+            }),
+          });
+          const result = await res.json();
+          if (res.ok && result.jwt) {
+            console.log("JWT received: ", result.jwt);
+            return {
+              id: result.userId,
+              email: email || result.email,
+              role: result.role,
+              token: result.jwt,
+            };
+          }
+        }
+        else if(jwt && userId) {
+          console.log("Logging in via SSO from Startup Vest");
           return {
-            ...result.data,
-            role: result.data.role,
+            id: Number(userId),
+            email: email,
+            role: role,
+            token: jwt,
           };
         }
-        return null;
+
+        throw new AuthError("Invalid Credential");
       },
     }),
   ],
   callbacks: {
-    jwt: async ({ token, user }) => {
+    jwt: async ({ trigger, token, session, user }) => {
+      if (trigger === "update" && session) {
+        return { ...token, user: session.user };
+      }
       if (user) {
         return {
           ...token,
@@ -56,10 +82,17 @@ export const {
       }
       return token;
     },
-    session: async ({ session, token }) => {
-      if (token.user) {
-        session.user = token.user as any;
+    session: async ({ trigger, newSession, session, token }) => {
+      if (trigger === "update" && newSession) {
+        return { ...session, ...newSession };
       }
+      if (token) {
+        return {
+          ...session,
+          ...token,
+        };
+      }
+
       return session;
     },
   },

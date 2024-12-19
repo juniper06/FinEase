@@ -40,6 +40,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -47,37 +48,46 @@ import {
 import { CirclePlus, Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { addProject } from "@/actions/cfo/project.action";
+import { formatNumber, formatNumberForInput, generateStartupCode } from "@/lib/utils";
 
 const formSchema = z.object({
   projectName: z.string({
     message: "Project Name is Required!",
-  }),
+  }).min(3, "Project Name must be at least 3 characters").max(50, "Project Name must be at most 50 characters"),
+
   projectCode: z.string({
     message: "Project Code is Required!",
   }),
+
   customerId: z.string({
     message: "Customer is Required!",
   }),
+
   billingMethod: z.string({
     message: "Billing Method is Required!",
   }),
+
   description: z.string({
-    message: "description is Required!",
-  }),
+    message: "Description is Required!",
+  }).min(5, "Description must be at least 5 characters").max(200, "Description must be at most 200 characters"),
+
   users: z.array(
     z.object({
-      userName: z.string(),
-      userEmail: z.string(),
+      userName: z.string().min(3, "User Name must be at least 3 characters").max(20, "User Name must be at most 20 characters"),
+      userEmail: z.string().email("Invalid email format").max(50, "Email must be at most 50 characters"),
     })
   ),
-  tasks: z.array(
-    z.object({
-      taskName: z.string(),
-      taskDescription: z.string(),
-    })
-  ),
-});
 
+  resources: z.array(
+    z.object({
+      resourceCategory: z.string(),
+      subCategory: z.string(),
+      expense: z.number().min(1, "Expense must be at least 1"), // You could add constraints for the expense here
+    })
+  ),
+
+  totalExpenses: z.number().min(0, "Total expenses must be at least 0"),
+});
 export const AddProjectForm = () => {
   const { toast } = useToast();
   const router = useRouter();
@@ -90,7 +100,7 @@ export const AddProjectForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       projectName: "",
-      projectCode: "",
+      projectCode: generateStartupCode(),
       customerId: "",
       billingMethod: "",
       description: "",
@@ -100,12 +110,14 @@ export const AddProjectForm = () => {
           userEmail: "",
         },
       ],
-      tasks: [
+      resources: [
         {
-          taskName: "",
-          taskDescription: "",
+          resourceCategory: "",
+          subCategory: "",
+          expense: 0,
         },
       ],
+      totalExpenses: 0,
     },
   });
 
@@ -173,7 +185,7 @@ export const AddProjectForm = () => {
     remove: removeProject,
   } = useFieldArray({
     control: form.control,
-    name: "tasks",
+    name: "resources",
   });
 
   const addUserRow = () => {
@@ -185,8 +197,9 @@ export const AddProjectForm = () => {
 
   const addProjectRow = () => {
     appendProject({
-      taskName: "",
-      taskDescription: "",
+      resourceCategory: "",
+      subCategory: "",
+      expense: 0,
     });
   };
 
@@ -197,19 +210,21 @@ export const AddProjectForm = () => {
       });
       return;
     }
-  
+
     try {
       const projectData = {
         ...values,
         userId: user.id,
+        startupId: user.startupId,
         customerId: parseInt(values.customerId),
+        totalExpenses: values.totalExpenses, // Include the total expenses
       };
-  
+
       const response = await addProject(projectData);
-      if ('error' in response) {
+      if ("error" in response) {
         throw new Error(response.error);
       }
-  
+
       toast({
         description: "Project added successfully!",
       });
@@ -219,7 +234,8 @@ export const AddProjectForm = () => {
     } catch (error) {
       console.error("Failed to add project:", error);
       toast({
-        description: error instanceof Error ? error.message : "Failed to add project.",
+        description:
+          error instanceof Error ? error.message : "Failed to add project.",
         variant: "destructive",
       });
     }
@@ -232,6 +248,13 @@ export const AddProjectForm = () => {
     });
     router.push("/items");
   };
+
+  useEffect(() => {
+    const total = form
+      .watch("resources")
+      .reduce((sum, resource) => sum + (resource.expense || 0), 0);
+    form.setValue("totalExpenses", total);
+  }, [form.watch("resources")]);
 
   return (
     <Form {...form}>
@@ -396,18 +419,19 @@ export const AddProjectForm = () => {
           onClick={addUserRow}
           className=" w-[120px]"
         >
-          <CirclePlus className="h-5 w-5 mr-3" /> Add User
+          <CirclePlus className="h-5 w-5 mr-3" /> Add Row
         </Button>
         <div className="md:w-[1000px]">
           <Separator />
         </div>
-        <h1 className="mt-5 text-[23px]">Project Tasks</h1>
+        <h1 className="mt-5 text-[23px]">Project Resources</h1>
         <Table className="md:w-[1000px]">
           <TableHeader>
             <TableRow>
               <TableHead className="w-[50px] text-center">S.No</TableHead>
-              <TableHead>Task Name</TableHead>
-              <TableHead>Task Description</TableHead>
+              <TableHead>Cost Category</TableHead>
+              <TableHead>Cost Subcategory</TableHead>
+              <TableHead>Expense</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -417,11 +441,54 @@ export const AddProjectForm = () => {
                 <TableCell>
                   <FormField
                     control={form.control}
-                    name={`tasks.${index}.taskName`}
+                    name={`resources.${index}.resourceCategory`}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input className="border-none " required {...field} />
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              form.setValue(
+                                `resources.${index}.subCategory`,
+                                ""
+                              );
+                            }}
+                            defaultValue={field.value}
+                          >
+                            <FormControl className="md:w-[400px]">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select Cost Category" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Personnel">
+                                Personnel
+                              </SelectItem>
+                              <SelectItem value="Personnel Services">
+                                Personnel Services
+                              </SelectItem>
+                              <SelectItem value="Equipment">
+                                Equipment
+                              </SelectItem>
+                              <SelectItem value="Supplies">Supplies</SelectItem>
+                              <SelectItem value="Travel">Travel</SelectItem>
+                              <SelectItem value="Marketing">
+                                Marketing
+                              </SelectItem>
+                              <SelectItem value="Consulting">
+                                Consulting
+                              </SelectItem>
+                              <SelectItem value="MOOE">
+                                Maintenance and Other Operating Expenses (MOOE)
+                              </SelectItem>
+                              <SelectItem value="Equipment/Capital Outlay">
+                                Equipment/Capital Outlay
+                              </SelectItem>
+                              <SelectItem value="Miscellaneous">
+                                Miscellaneous
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                       </FormItem>
                     )}
@@ -430,14 +497,188 @@ export const AddProjectForm = () => {
                 <TableCell>
                   <FormField
                     control={form.control}
-                    name={`tasks.${index}.taskDescription`}
+                    name={`resources.${index}.subCategory`}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Textarea
-                            className="border-none min-h-5"
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl className="md:w-[400px]">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select Cost Subcategory" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {(() => {
+                                switch (
+                                  form.watch(
+                                    `resources.${index}.resourceCategory`
+                                  )
+                                ) {
+                                  case "Personnel":
+                                    return (
+                                      <>
+                                        <SelectItem value="Salaries">
+                                          Salaries
+                                        </SelectItem>
+                                        <SelectItem value="Benefits">
+                                          Benefits
+                                        </SelectItem>
+                                        <SelectItem value="Training">
+                                          Training
+                                        </SelectItem>
+                                      </>
+                                    );
+                                  case "Personnel Services":
+                                    return (
+                                      <>
+                                        <SelectItem value="Contract Labor">
+                                          Contract Labor
+                                        </SelectItem>
+                                        <SelectItem value="Temporary Staff">
+                                          Temporary Staff
+                                        </SelectItem>
+                                        <SelectItem value="Overtime Pay">
+                                          Overtime Pay
+                                        </SelectItem>
+                                      </>
+                                    );
+                                  case "Equipment":
+                                    return (
+                                      <>
+                                        <SelectItem value="Hardware">
+                                          Hardware
+                                        </SelectItem>
+                                        <SelectItem value="Software">
+                                          Software
+                                        </SelectItem>
+                                        <SelectItem value="Maintenance">
+                                          Maintenance
+                                        </SelectItem>
+                                      </>
+                                    );
+                                  case "Supplies":
+                                    return (
+                                      <>
+                                        <SelectItem value="Office Supplies">
+                                          Office Supplies
+                                        </SelectItem>
+                                        <SelectItem value="Project-Specific">
+                                          Project-Specific
+                                        </SelectItem>
+                                      </>
+                                    );
+                                  case "Travel":
+                                    return (
+                                      <>
+                                        <SelectItem value="Transportation">
+                                          Transportation
+                                        </SelectItem>
+                                        <SelectItem value="Accommodation">
+                                          Accommodation
+                                        </SelectItem>
+                                        <SelectItem value="Meals & Incidentals">
+                                          Meals & Incidentals
+                                        </SelectItem>
+                                      </>
+                                    );
+                                  case "Marketing":
+                                    return (
+                                      <>
+                                        <SelectItem value="Advertising">
+                                          Advertising
+                                        </SelectItem>
+                                        <SelectItem value="Promotions">
+                                          Promotions
+                                        </SelectItem>
+                                      </>
+                                    );
+                                  case "Consulting":
+                                    return (
+                                      <>
+                                        <SelectItem value="Professional Services">
+                                          Professional Services
+                                        </SelectItem>
+                                        <SelectItem value="Legal Fees">
+                                          Legal Fees
+                                        </SelectItem>
+                                      </>
+                                    );
+                                  case "MOOE":
+                                    return (
+                                      <>
+                                        <SelectItem value="Repairs">
+                                          Repairs
+                                        </SelectItem>
+                                        <SelectItem value="Utilities">
+                                          Utilities
+                                        </SelectItem>
+                                        <SelectItem value="Communication">
+                                          Communication
+                                        </SelectItem>
+                                      </>
+                                    );
+                                  case "Equipment/Capital Outlay":
+                                    return (
+                                      <>
+                                        <SelectItem value="New Equipment">
+                                          New Equipment
+                                        </SelectItem>
+                                        <SelectItem value="Furniture">
+                                          Furniture
+                                        </SelectItem>
+                                      </>
+                                    );
+                                  case "Miscellaneous":
+                                    return (
+                                      <>
+                                        <SelectItem value="Contingency Fund">
+                                          Contingency Fund
+                                        </SelectItem>
+                                        <SelectItem value="Other Expenses">
+                                          Other Expenses
+                                        </SelectItem>
+                                      </>
+                                    );
+                                  default:
+                                    return null;
+                                }
+                              })()}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </TableCell>
+                <TableCell>
+                  <FormField
+                    control={form.control}
+                    name={`resources.${index}.expense`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            className="w-[200px] text-right"
                             required
                             {...field}
+                            value={formatNumberForInput(field.value)}
+                            onChange={(e) => {
+                              const rawValue = e.target.value.replace(/,/g, "");
+                              const numValue = parseFloat(rawValue) || 0;
+                              field.onChange(numValue);
+
+                              const total = form
+                                .getValues("resources")
+                                .reduce(
+                                  (sum, resource) =>
+                                    sum + (resource.expense || 0),
+                                  0
+                                );
+                              form.setValue("totalExpenses", total);
+                            }}
                           />
                         </FormControl>
                       </FormItem>
@@ -456,14 +697,36 @@ export const AddProjectForm = () => {
               </TableRow>
             ))}
           </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={3}>Total</TableCell>
+              <TableCell className="text-right">
+                <FormField
+                  control={form.control}
+                  name="totalExpenses"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          disabled
+                          className="text-right border-none md:w-[200px]"
+                          value={formatNumber(field.value)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
         <Button
           type="button"
           variant="ghost"
           onClick={addProjectRow}
-          className=" w-[170px]"
+          className=" w-[120px]"
         >
-          <CirclePlus className="h-5 w-5 mr-3" /> Add Project Task
+          <CirclePlus className="h-5 w-5 mr-3" /> Add Row
         </Button>
         <footer className="fixed bottom-0 w-full flex py-5 space-x-4">
           <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

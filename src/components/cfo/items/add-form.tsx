@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as z from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,20 +20,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -49,33 +35,63 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { cn } from "@/lib/utils";
-import { format, parseISO } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, CircleHelp, CirclePlus, Trash } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
+import { User, getUserData } from "@/actions/auth/user.action";
+import { addItem } from "@/actions/cfo/item.action";
+import { formatNumber, formatNumberForInput } from "@/lib/utils";
 
 const formSchema = z.object({
-  type: z.string({
-    message: "Type is Required",
-  }),
-  name: z.string({
-    message: "Item Name is Required",
-  }),
-  unit: z.string({
-    message: "Unit is Required",
-  }),
-  description: z.string({
-    message: "Description is Required",
-  }),
-  price: z.coerce.number(),
+  type: z
+    .string({
+      message: "Type is Required",
+    })
+    .refine((val) => ["Goods", "Service"].includes(val), {
+      message: "Type must be either 'Goods' or 'Service'",
+    }),
+  name: z
+    .string({
+      message: "Item Name is Required",
+    })
+    .min(3, {
+      message: "Item Name must be at least 3 characters long",
+    }),
+  unit: z
+    .string({
+      message: "Unit is Required",
+    })
+    .refine(
+      (val) =>
+        ["Kgs", "Gms", "Box", "Mtr", "Unt", "Pcs", "Prs", "None"].includes(val),
+      {
+        message: "Invalid unit selected",
+      }
+    ),
+  description: z
+    .string({
+      message: "Description is Required",
+    })
+    .min(5, {
+      message: "Description must be at least 5 characters long",
+    }),
+  price: z.coerce
+    .number({
+      message: "Price must be a valid number",
+    })
+    .min(1, {
+      message: "Price must be greater than 0",
+    }),
 });
 
 export const AddItemForm = () => {
   const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const router = useRouter();
+  const [displayValue, setDisplayValue] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -88,8 +104,53 @@ export const AddItemForm = () => {
     },
   });
 
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const userData = await getUserData();
+        setUser(userData);
+      } catch (error) {
+        toast({
+          description: "Failed to fetch user data.",
+        });
+      }
+    }
+    fetchUserData();
+  }, [toast]);
+
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    if (!user) {
+      toast({
+        description: "You need to be logged in to create an item.",
+      });
+      return;
+    }
+    const itemData = {
+      ...values,
+      userId: user.id,
+      startupId: user.startupId,
+    };
+    const response = await addItem(itemData);
+    if (response.error) {
+      toast({
+        description: "Failed to add Item",
+      });
+    } else {
+      toast({
+        description: "Item added successfully!",
+      });
+      form.reset();
+      setIsDialogOpen(false);
+      router.push("/items");
+    }
+  };
+
+  const handleCancel = () => {
+    form.reset();
+    toast({
+      description: "Changes have been discarded.",
+    });
+    router.push("/items");
   };
 
   return (
@@ -102,7 +163,7 @@ export const AddItemForm = () => {
           control={form.control}
           name="type"
           render={({ field }) => (
-            <FormItem className="md:flex md:items-center">
+            <FormItem className="md:flex md:flex-col md:items-start">
               <FormLabel className="md:w-60 md:text-lg font-light flex items-center gap-2">
                 Type{" "}
                 <HoverCard>
@@ -123,10 +184,11 @@ export const AddItemForm = () => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="goods">Goods</SelectItem>
-                  <SelectItem value="service">Service</SelectItem>
+                  <SelectItem value="Goods">Goods</SelectItem>
+                  <SelectItem value="Service">Service</SelectItem>
                 </SelectContent>
               </Select>
+              <FormMessage className="text-red-600 mt-1" />
             </FormItem>
           )}
         />
@@ -134,13 +196,14 @@ export const AddItemForm = () => {
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem className="md:flex md:items-center">
-              <FormLabel className="md:w-60 md:text-lg font-light">
+            <FormItem className="md:flex md:flex-col md:items-start">
+              <FormLabel className="md:w-60 md:text-lg font-light flex items-center gap-2">
                 Item Name
               </FormLabel>
               <FormControl>
-                <Input required {...field}/>
+                <Input className="md:w-[400px]" required {...field} />
               </FormControl>
+              <FormMessage className="text-red-600 mt-1" />
             </FormItem>
           )}
         />
@@ -148,7 +211,7 @@ export const AddItemForm = () => {
           control={form.control}
           name="unit"
           render={({ field }) => (
-            <FormItem className="md:flex md:items-center">
+            <FormItem className="md:flex md:flex-col md:items-start">
               <FormLabel className="md:w-60 md:text-lg font-light flex items-center gap-2">
                 Unit{" "}
                 <HoverCard>
@@ -168,15 +231,17 @@ export const AddItemForm = () => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="kgs">KGS - KILOGRAM</SelectItem>
-                  <SelectItem value="gms">GMS - GRAMS</SelectItem>
-                  <SelectItem value="box">BOX - BOX</SelectItem>
-                  <SelectItem value="mtr">MTR - METERS</SelectItem>
-                  <SelectItem value="unt">UNT - UNITS</SelectItem>
-                  <SelectItem value="pcs">PCS - PIECES</SelectItem>
-                  <SelectItem value="prs">PRS - PAIRS</SelectItem>
+                  <SelectItem value="Kgs">KGS - KILOGRAM</SelectItem>
+                  <SelectItem value="Gms">GMS - GRAMS</SelectItem>
+                  <SelectItem value="Box">BOX - BOX</SelectItem>
+                  <SelectItem value="Mtr">MTR - METERS</SelectItem>
+                  <SelectItem value="Unt">UNT - UNITS</SelectItem>
+                  <SelectItem value="Pcs">PCS - PIECES</SelectItem>
+                  <SelectItem value="Prs">PRS - PAIRS</SelectItem>
+                  <SelectItem value="None">None</SelectItem>
                 </SelectContent>
               </Select>
+              <FormMessage className="text-red-600 mt-1" />
             </FormItem>
           )}
         />
@@ -184,13 +249,25 @@ export const AddItemForm = () => {
           control={form.control}
           name="price"
           render={({ field }) => (
-            <FormItem className="md:flex md:items-center">
+            <FormItem className="md:flex md:flex-col md:items-start">
               <FormLabel className="md:w-60 md:text-lg font-light">
                 Selling Price ( ₱ )
               </FormLabel>
               <FormControl>
-                <Input required {...field} />
+                <Input
+                  className="md:w-[400px]"
+                  required
+                  {...field}
+                  value={displayValue}
+                  onChange={(e) => {
+                    const rawValue = e.target.value.replace(/[^0-9]/g, "");
+                    const numValue = parseInt(rawValue, 10);
+                    setDisplayValue(formatNumberForInput(numValue));
+                    field.onChange(numValue);
+                  }}
+                />
               </FormControl>
+              <FormMessage className="text-red-600 mt-1" />
             </FormItem>
           )}
         />
@@ -198,20 +275,25 @@ export const AddItemForm = () => {
           control={form.control}
           name="description"
           render={({ field }) => (
-            <FormItem className="md:flex md:items-center">
+            <FormItem className="md:flex md:flex-col md:items-start">
               <FormLabel className="md:w-60 md:text-lg font-light">
                 Description
               </FormLabel>
               <FormControl>
                 <Textarea required {...field} className="md:w-[400px]" />
               </FormControl>
+              <FormMessage className="text-red-600 mt-1" />
             </FormItem>
           )}
         />
         <footer className="fixed bottom-0 w-full flex py-5 space-x-4">
-          <AlertDialog>
+          <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="default" className="w-[150px]">
+              <Button
+                variant="default"
+                className="w-[150px]"
+                onClick={() => setIsDialogOpen(true)}
+              >
                 Save
               </Button>
             </AlertDialogTrigger>
@@ -248,14 +330,7 @@ export const AddItemForm = () => {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Stay</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    form.reset();
-                    toast({
-                      description: "Changes have been discarded.",
-                    });
-                  }}
-                >
+                <AlertDialogAction onClick={handleCancel}>
                   Discard
                 </AlertDialogAction>
               </AlertDialogFooter>

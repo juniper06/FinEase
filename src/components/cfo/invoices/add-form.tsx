@@ -44,17 +44,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber, generateStartupCode } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, CirclePlus, Trash } from "lucide-react";
+import { CalendarIcon, CirclePlus, Trash, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Customer, getAllCustomers } from "@/actions/customer.action";
-import { User, getUserData } from "@/actions/user.action";
-import { Item, getAllitems, getItem } from "@/actions/item.action";
-import { addInvoice } from "@/actions/invoice.action";
+import { Customer, getAllCustomers } from "@/actions/cfo/customer.action";
+import { User, getUserData } from "@/actions/auth/user.action";
+import { Item, getAllItems, getItem } from "@/actions/cfo/item.action";
+import { addInvoice } from "@/actions/cfo/invoice.action";
 
 const formSchema = z.object({
   customerId: z.string({
@@ -92,7 +92,7 @@ export const AddInvoiceForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       customerId: "",
-      invoiceNumber: "",
+      invoiceNumber: generateStartupCode(),
       dueDate: "",
       items: [
         {
@@ -138,7 +138,7 @@ export const AddInvoiceForm = () => {
       } else {
         setUser(userData);
 
-        const fetchedItems = await getAllitems(userData.id);
+        const fetchedItems = await getAllItems(userData.id);
         if ("error" in fetchedItems) {
           toast({
             description: fetchedItems.error,
@@ -211,6 +211,7 @@ export const AddInvoiceForm = () => {
     const invoiceData = {
       ...values,
       userId: user.id,
+      startupId: user.startupId,
       customerId: parseInt(values.customerId),
       dueDate: new Date(values.dueDate).toISOString(),
       total,
@@ -262,7 +263,7 @@ export const AddInvoiceForm = () => {
                 <SelectContent>
                   {customers.map((customer) => (
                     <SelectItem key={customer.id} value={String(customer.id)}>
-                      {customer.email}
+                      {customer.firstName} {customer.lastName}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -279,7 +280,7 @@ export const AddInvoiceForm = () => {
                 Invoice #
               </FormLabel>
               <FormControl>
-                <Input required {...field} className="md:w-[400px]" />
+                <Input required {...field} className="md:w-[400px]" readOnly />
               </FormControl>
             </FormItem>
           )}
@@ -288,17 +289,17 @@ export const AddInvoiceForm = () => {
           control={form.control}
           name="dueDate"
           render={({ field }) => (
-            <FormItem className="md:flex md:items-center">
-              <FormLabel className="md:w-60 md:text-lg font-light">
+            <FormItem className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0">
+              <FormLabel className="md:w-60 text-base md:text-lg font-light">
                 Due Date
               </FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
-                      variant={"outline"}
+                      variant="outline"
                       className={cn(
-                        "md:w-[400px] pl-3 text-left font-normal",
+                        "w-full md:w-[300px] lg:w-[400px] pl-3 text-left font-normal",
                         !field.value && "text-muted-foreground"
                       )}
                     >
@@ -318,33 +319,35 @@ export const AddInvoiceForm = () => {
                     onSelect={(date) =>
                       field.onChange(date ? date.toISOString() : "")
                     }
-                    disabled={(date) => date < new Date("1900-01-01")}
-                    initialFocus
+                    disabled={(date) => date < new Date()} // Disable past dates
                   />
                 </PopoverContent>
               </Popover>
             </FormItem>
           )}
         />
-        <Table className="md:w-[1500px]">
+        <Table className="md:w-[1500px] w-full">
           <TableHeader>
-            <TableRow>
+            <TableRow className="text-[11px]">
               <TableHead className="md:w-[500px]">Item Name</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
-              <TableHead className="text-right md:w-[300px]">Price</TableHead>
-              <TableHead className="text-right md:w-[300px]">Amount</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="md:text-right">Quantity</TableHead>
+              <TableHead className="md:text-right md:w-[300px]">
+                Amount
+              </TableHead>
+              <TableHead className="md:text-right md:w-[300px]">
+                Price
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {fields.map((field, index) => (
               <TableRow key={field.id}>
-                <TableCell className="w-[500px]">
+                <TableCell className="md:w-[500px] ">
                   <FormField
                     control={form.control}
                     name={`items.${index}.itemId`}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="w-[50px] md:w-full">
                         <Select
                           onValueChange={(value) => {
                             field.onChange(value);
@@ -354,7 +357,10 @@ export const AddInvoiceForm = () => {
                         >
                           <FormControl className="border-none ">
                             <SelectTrigger>
-                              <SelectValue placeholder="Select an item" />
+                              <SelectValue
+                                className="text-[11px]"
+                                placeholder="Select an item"
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -369,7 +375,7 @@ export const AddInvoiceForm = () => {
                     )}
                   />
                 </TableCell>
-                <TableCell className="md:w-60 text-right">
+                <TableCell className="md:w-60 md:text-right">
                   <FormField
                     control={form.control}
                     name={`items.${index}.quantity`}
@@ -378,7 +384,7 @@ export const AddInvoiceForm = () => {
                         <FormControl>
                           <Input
                             type="number"
-                            className="text-right border-none md:w-[300px]"
+                            className="text-right border-none md:w-[300px] w-[30px] "
                             required
                             {...field}
                             onChange={(e) => {
@@ -403,9 +409,14 @@ export const AddInvoiceForm = () => {
                         <FormControl>
                           <Input
                             disabled
-                            className="text-right border-none md:w-[300px]"
+                            className="md:text-right border-none md:w-[300px] w-[60px] text-[11px]"
                             required
                             {...field}
+                            value={formatNumber(field.value)}
+                            onChange={(e) => {
+                              const rawValue = e.target.value.replace(/,/g, "");
+                              field.onChange(parseFloat(rawValue) || 0);
+                            }}
                           />
                         </FormControl>
                       </FormItem>
@@ -421,25 +432,31 @@ export const AddInvoiceForm = () => {
                         <FormControl>
                           <Input
                             disabled
-                            className="text-right border-none md:w-[300px]"
+                            className="md:text-right border-none md:w-[300px] w-[60px] text-[11px]"
                             required
                             {...field}
+                            value={formatNumber(field.value)}
+                            onChange={(e) => {
+                              const rawValue = e.target.value.replace(/,/g, "");
+                              field.onChange(parseFloat(rawValue) || 0);
+                            }}
                           />
                         </FormControl>
                       </FormItem>
                     )}
                   />
                 </TableCell>
-                <TableCell>
+                <TableCell className="md:w-[40px] w-[2px]">
                   <Button
-                    variant="destructive"
-                    size="icon"
+                    className="w-[2px] md:w-[50px] md:p-0"
+                    type="button"
+                    variant="ghost"
                     onClick={() => {
                       remove(index);
                       calculateTotal();
                     }}
                   >
-                    <Trash className="h-4 w-4" />
+                    <Trash2 color="#ff0000" className="md:h-4 md:w-4 h-2 w-2" />
                   </Button>
                 </TableCell>
               </TableRow>
@@ -460,6 +477,11 @@ export const AddInvoiceForm = () => {
                           className="text-right border-none md:w-[300px]"
                           required
                           {...field}
+                          value={formatNumber(field.value)}
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/,/g, "");
+                            field.onChange(parseFloat(rawValue) || 0);
+                          }}
                         />
                       </FormControl>
                     </FormItem>

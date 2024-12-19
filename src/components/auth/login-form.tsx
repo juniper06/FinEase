@@ -17,6 +17,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 const formSchema = z.object({
   email: z.string().min(1, {
@@ -51,7 +59,7 @@ export default function LoginForm() {
     return () => clearTimeout(timeOut);
   }, [error]);
 
-  const onSubmit = async (values: formSchemaType) => {
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     const response = await signIn("credentials", {
       ...values,
       redirect: false,
@@ -68,61 +76,69 @@ export default function LoginForm() {
   };
 
   return (
-    <Card className="mx-auto max-w-md">
-      <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription>
-          Enter your email and password to login to your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="text"
-              {...form.register("email")}
-            />
-            {form.formState.errors.email && (
-              <div role="alert" className="text-red-500 text-sm">
-                {form.formState.errors.email.message}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)}>
+        <Card className="mx-auto max-w-sm">
+          <CardHeader>
+            <CardTitle className="text-2xl">Login</CardTitle>
+            <CardDescription>
+              Enter your email and password to login to your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input required {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-            )}
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              {...form.register("password")}
-            />
-            {form.formState.errors.password && (
-              <div role="alert" className="text-red-500 text-sm">
-                {form.formState.errors.password.message}
+              <div className="grid gap-2">
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input required type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-            )}
-          </div>
-          {error && (
-            <div role="alert" className="text-red-500 text-sm">
-              {error}
+              {error && (
+                <div role="alert" className="text-red-500 text-sm">
+                  {error}
+                </div>
+              )}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={form.formState.isSubmitting}
+              >
+                Login
+              </Button>
             </div>
-          )}
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={form.formState.isSubmitting}
-          >
-            Login
-          </Button>
-        </form>
-        <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <Link href="/register" className="underline">
-            Sign up
-          </Link>
-        </div>
-      </CardContent>
-    </Card>
+            <div className="mt-4 text-center text-sm">
+              Don&apos;t have an account?{" "}
+              <Link href="https://investtrack-ten.vercel.app/signup" className="underline">
+                Sign up
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </form>
+    </Form>
   );
 }

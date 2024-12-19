@@ -25,15 +25,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -52,22 +43,35 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber, formatNumberForInput, generateStartupCode } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, CirclePlus, CirclePlusIcon, Trash } from "lucide-react";
+import {
+  CalendarIcon,
+  CirclePlus,
+  CirclePlusIcon,
+  Trash,
+  Trash2Icon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { AddCategory } from "./add-category";
-import { User, getUserData } from "@/actions/user.action";
+import { User, getUserData } from "@/actions/auth/user.action";
+import {
+  Category,
+  deleteCategory,
+  getAllCategory,
+} from "@/actions/cfo/category.action";
+import { addExpenses } from "@/actions/cfo/expenses.action";
+import { error } from "console";
 
 const formSchema = z.object({
   transactionDate: z.string().datetime({
     message: "Transaction Date is Required",
   }),
-  categoryName: z.string({
+  categoryId: z.string({
     message: "Category is Required",
   }),
   amount: z.coerce.number(),
@@ -82,15 +86,17 @@ const formSchema = z.object({
 export const AddExpensesForm = () => {
   const { toast } = useToast();
   const router = useRouter();
+  const [categories, setCategories] = useState<Category[]>([]);
   const [user, setUser] = useState<User | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       transactionDate: "",
-      categoryName: "",
+      categoryId: "",
       amount: 0,
-      referenceNumber: "",
+      referenceNumber: generateStartupCode(),
       modeOfPayment: "",
     },
   });
@@ -100,7 +106,19 @@ export const AddExpensesForm = () => {
       try {
         const userData = await getUserData();
         setUser(userData);
+
+        if (userData && userData.id) {
+          const fetchedCategories = await getAllCategory(userData.id);
+          if (fetchedCategories.error) {
+            toast({
+              description: fetchedCategories.error,
+            });
+          } else {
+            setCategories(fetchedCategories);
+          }
+        }
       } catch (error) {
+        console.error("Error fetching user data:", error);
         toast({
           description: "Failed to fetch user data.",
         });
@@ -110,7 +128,71 @@ export const AddExpensesForm = () => {
   }, [toast]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    if (!user) {
+      toast({
+        description: "You need to be logged in to create an expenses.",
+      });
+      return;
+    }
+
+    const expensesData = {
+      ...values,
+      userId: user.id,
+      categoryId: parseInt(values.categoryId),
+      transactionDate: new Date(values.transactionDate).toISOString(),
+      startupId: user.startupId,
+    };
+
+    const response = await addExpenses(expensesData);
+    if (response.error) {
+      toast({
+        description: "Failed to add Expenses",
+      });
+    } else {
+      toast({
+        description: "Expenses added successfully!",
+      });
+      form.reset();
+      setIsDialogOpen(false);
+      router.push("/expenses-tracking");
+    }
+  };
+
+  const handleCancel = () => {
+    form.reset();
+    toast({
+      description: "Changes have been discarded.",
+    });
+    router.push("/expenses-tracking");
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    const response = await deleteCategory(id);
+    if (response.error) {
+      toast({
+        description: response.error,
+      });
+    } else {
+      toast({
+        description: "Category deleted successfully!",
+      });
+      setCategories((prevCategories) =>
+        prevCategories.filter((category) => category.id !== id)
+      );
+    }
+  };
+
+  const refreshCategories = async () => {
+    if (user) {
+      const fetchedCategories = await getAllCategory(user.id);
+      if (fetchedCategories.error) {
+        toast({
+          description: fetchedCategories.error,
+        });
+      } else {
+        setCategories(fetchedCategories);
+      }
+    }
   };
 
   return (
@@ -163,7 +245,7 @@ export const AddExpensesForm = () => {
         />
         <FormField
           control={form.control}
-          name="categoryName"
+          name="categoryId"
           render={({ field }) => (
             <FormItem className="md:flex md:items-center">
               <FormLabel className="md:w-60 md:text-lg font-light">
@@ -176,14 +258,25 @@ export const AddExpensesForm = () => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="m@example.com">m@example.com</SelectItem>
-                  <SelectItem value="m@google.com">m@google.com</SelectItem>
-                  <SelectItem value="m@support.com">m@support.com</SelectItem>
+                  {categories.map((category) => (
+                    <div
+                      key={category.id}
+                      className="flex justify-between items-center"
+                    >
+                      <SelectItem value={String(category.id)}>
+                        {category.categoryName}
+                      </SelectItem>
+                      <Trash2Icon
+                        className="h-5 w-5 cursor-pointer text-red-500"
+                        onClick={() => handleDeleteCategory(category.id)}
+                      />
+                    </div>
+                  ))}
                   <Separator />
                   <Dialog>
                     <DialogTrigger className="p-2 flex gap-2 justify-center items-center">
                       <CirclePlusIcon className="h-5 w-5" />
-                      New Categpory
+                      New Category
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
@@ -192,7 +285,7 @@ export const AddExpensesForm = () => {
                         </DialogTitle>
                         <Separator />
                         <DialogDescription className="flex justify-center items-center">
-                          <AddCategory />
+                          <AddCategory onCategoryAdded={refreshCategories} />
                         </DialogDescription>
                       </DialogHeader>
                     </DialogContent>
@@ -211,7 +304,16 @@ export const AddExpensesForm = () => {
                 Amount ( ₱ )
               </FormLabel>
               <FormControl>
-                <Input required {...field} className="md:w-[400px]"/>
+                <Input
+                  required
+                  {...field}
+                  className="md:w-[400px]"
+                  value={formatNumberForInput(field.value)}
+                  onChange={(e) => {
+                    const rawValue = e.target.value.replace(/,/g, "");
+                    field.onChange(parseFloat(rawValue) || 0);
+                  }}
+                />
               </FormControl>
             </FormItem>
           )}
@@ -231,10 +333,10 @@ export const AddExpensesForm = () => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="cash">Cash</SelectItem>
-                  <SelectItem value="creditCard">Credit Card</SelectItem>
-                  <SelectItem value="bankTransfer">Bank Transfer</SelectItem>
-                  <SelectItem value="cheque">Cheque</SelectItem>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="CreditCard">Credit Card</SelectItem>
+                  <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                  <SelectItem value="Cheque">Cheque</SelectItem>
                 </SelectContent>
               </Select>
             </FormItem>
@@ -249,15 +351,19 @@ export const AddExpensesForm = () => {
                 Reference #
               </FormLabel>
               <FormControl>
-                <Input required {...field} className="md:w-[400px]"/>
+                <Input required {...field} className="md:w-[400px]" readOnly />
               </FormControl>
             </FormItem>
           )}
         />
         <footer className="fixed bottom-0 w-full flex py-5 space-x-4">
-          <AlertDialog>
+          <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="default" className="w-[150px]">
+              <Button
+                variant="default"
+                className="w-[150px]"
+                onClick={() => setIsDialogOpen(true)}
+              >
                 Save
               </Button>
             </AlertDialogTrigger>
@@ -294,14 +400,7 @@ export const AddExpensesForm = () => {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Stay</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    form.reset();
-                    toast({
-                      description: "Changes have been discarded.",
-                    });
-                  }}
-                >
+                <AlertDialogAction onClick={handleCancel}>
                   Discard
                 </AlertDialogAction>
               </AlertDialogFooter>

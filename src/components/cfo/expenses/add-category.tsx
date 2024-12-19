@@ -1,5 +1,5 @@
-import { addCategory } from "@/actions/category.action";
-import { User, getUserData } from "@/actions/user.action";
+import { addCategory } from "@/actions/cfo/category.action";
+import { User, getUserData } from "@/actions/auth/user.action";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -7,6 +7,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,7 +22,11 @@ const formSchema = z.object({
   }),
 });
 
-export const AddCategory = () => {
+interface AddCategoryProps {
+  onCategoryAdded?: () => Promise<void>;
+}
+
+export const AddCategory: React.FC<AddCategoryProps> = ({ onCategoryAdded }) => {
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
 
@@ -32,6 +37,7 @@ export const AddCategory = () => {
     },
   });
 
+  
   useEffect(() => {
     async function fetchUserData() {
       try {
@@ -49,7 +55,7 @@ export const AddCategory = () => {
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!user) {
       toast({
-        description: "You need to be logged in to create an category.",
+        description: "You need to be logged in to create a category.",
       });
       return;
     }
@@ -67,6 +73,7 @@ export const AddCategory = () => {
         description: "Category added successfully!",
       });
       form.reset();
+      await onCategoryAdded?.(); // Call the callback function to refresh categories
     }
   };
 

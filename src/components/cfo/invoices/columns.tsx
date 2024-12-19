@@ -1,5 +1,4 @@
-"use client";
-
+"use client"
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatNumber } from "@/lib/utils";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -22,25 +21,66 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
+import { Invoice } from "@/actions/cfo/invoice.action";
 
+// Separate the ActionCell into its own component
+const ActionCell = ({ invoice, onDelete }: { invoice: Invoice; onDelete: (id: string) => Promise<void>; }) => {
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
-export type Invoices = {
-  createdAt: string;
-  invoiceNumber: string;
-  customerName: string;
-  dueDate: string;
-  total: number;
+  const handleDelete = async () => {
+    await onDelete(invoice.id);
+    setIsAlertOpen(false);
+  };
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild>
+            <Link href={`/invoices/edit-invoice/${invoice.id}`}>
+              Edit
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsAlertOpen(true)}>
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the item.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 };
 
-export const invoicesColumns: ColumnDef<Invoices>[] = [
+export const invoicesColumns: ColumnDef<Invoice>[] = [
   {
     accessorKey: "createdAt",
-    header: "Date",
+    header: "Created at",
     cell: ({ getValue }) => formatDate(getValue() as string),
+    meta: { hiddenOnMobile: true },
   },
   {
     accessorKey: "invoiceNumber",
     header: "Invoice No.",
+    meta: { hiddenOnMobile: true },
   },
   {
     accessorKey: "customerName",
@@ -54,6 +94,24 @@ export const invoicesColumns: ColumnDef<Invoices>[] = [
   {
     accessorKey: "total",
     header: "Total Amount",
+    cell: ({ row }) => formatNumber(row.original.total),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.original.status;
+      let color = "text-gray-500";
+      if (status === "paid") color = "text-green-500";
+      if (status === "partially paid") color = "text-yellow-500";
+      if (status === "overdue") color = "text-red-500";
+      return <span className={color}>{status}</span>;
+    },
+  },
+  {
+    accessorKey: "balanceDue",
+    header: "Balance Due",
+    cell: ({ row }) => formatNumber(row.original.balanceDue),
   },
   {
     id: "actions",
@@ -61,55 +119,11 @@ export const invoicesColumns: ColumnDef<Invoices>[] = [
     header: "Actions",
     cell: ({ row, table }) => {
       const invoice = row.original;
-      const [isAlertOpen, setIsAlertOpen] = useState(false);
       const { onDelete } = table.options.meta as {
         onDelete: (id: string) => Promise<void>;
       };
-      const handleDelete = async () => {
-        await onDelete(invoice.id);
-        setIsAlertOpen(false);
-      };
 
-      return (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-                <Link href={`/invoices/edit-invoice/${invoice.id}`}>
-                  Edit
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>Edit</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setIsAlertOpen(true)}>
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  item.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </>
-      );
+      return <ActionCell invoice={invoice} onDelete={onDelete} />;
     },
   },
 ];

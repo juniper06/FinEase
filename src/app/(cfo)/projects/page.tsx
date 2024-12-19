@@ -1,3 +1,4 @@
+import { ProjectsTable } from "@/components/cfo/projects/table";
 import Layout from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -21,6 +22,7 @@ export default async function ProjectsPage() {
         </Button>
       </div>
       <Separator />
+      <ProjectsTable/>
     </Layout>
   );
 }

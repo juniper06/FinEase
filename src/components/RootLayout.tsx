@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { log } from "console";
 
 export default function RootLayout({
   children,
@@ -20,10 +21,12 @@ export default function RootLayout({
       const userRole = session.user.role;
       if (userRole === "CEO" && !pathname.startsWith("/ceo")) {
         router.push("/ceo");
-      } else if (userRole === "CFO" && !pathname.startsWith("/")) {
+      } else if (userRole === "CFO" && pathname === "/login") {
         router.push("/");
       } else if (userRole === "ADMIN" && !pathname.startsWith("/admin")) {
         router.push("/admin");
+      } else if (userRole === "GUEST" && !pathname.startsWith("/guest")) {
+        router.push("/guest");
       }
     }
   }, [session, pathname, router]);
