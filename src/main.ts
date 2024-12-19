@@ -1,21 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { UserService } from './user/user.service';
+import * as dotenv from 'dotenv';
+import { UserService } from './service/user.service';
+
+require('dotenv').config(); // Load environment variables from .env file
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  app.enableCors({
-    origin: ['http://localhost:3002'],
-    credentials: true,
-  });
-
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.enableCors()
 
   const userService = app.get(UserService);
   await userService.createDefaultAdmin();
-
-  await app.listen(3001);
+	
+  await app.listen(3000);
+  
 }
 bootstrap();
